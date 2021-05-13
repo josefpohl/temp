@@ -1,0 +1,6 @@
+module Pods_skywriterMDMobile_skywriterMDMobileTests {
+  umbrella header "Pods-skywriterMDMobile-skywriterMDMobileTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
