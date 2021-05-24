@@ -306,6 +306,4 @@ freeline_project_description.json
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
 
-/ios/Pods
-
 # End of https://www.gitignore.io/api/reactnative
