@@ -1,0 +1,25 @@
+Sockets (I know I keep on yammering on about this) 
+but where and how should I configure this. 
+Keep in mind that the workflow requires sockets at a few points 
+(but basically when they are logged in and the app is in an active state). 
+
+When the user logs and is in the app (not backgrounded) 
+they need to listen to events regarding user connects and 
+disconnects to get a valid count of who is available 
+(this is the availability data) to take a call.
+
+When a call is made or is incoming they need to be able to get that signal 
+
+When it goes from inactive (background) 
+to active it should re-establish the connection 
+if they are still logged in.
+
+When they get out of a call or come back 
+from a background state to an active state 
+they should repull the availability data 
+(and perhaps the profile data because this can change).
+
+When they log out or spend too much time 
+in the background state it should disconnect from the socket server. 
+(but I have found that it does that on it's own in the background state 
+but not necessarily in a graceful way.)
