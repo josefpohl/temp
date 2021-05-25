@@ -22,6 +22,10 @@ import {
 import { connect } from "../socketio/actions/connect";
 import { onUserConnected } from "../socketio/actions/userConnected";
 import { userConnected } from "../socketio/actions/userConnected";
+import {
+  onUserDisconnected,
+  userDisconnected,
+} from "../socketio/actions/userDisconnected";
 
 import config from "../config";
 
@@ -152,6 +156,9 @@ const getTeamAvailables = async (userid) => {
 //Action
 export const logoutUser = (user) => (dispatch) => {
   const uri = config.SERVER + `/api/users/logout/${user.id}`;
+  dispatch(onUserDisconnected());
+  dispatch(userDisconnected(user));
+
   axios
     .post(uri, {}, { timeout: 5000 })
     .then((user) => {

@@ -19,7 +19,9 @@ export function userConnected(user) {
 export function onUserConnected() {
   console.log("userConnected listener exec");
   const onUserConnected = (e) => {
-    console.log("This is the function ran when user has connected");
+    console.log(
+      "This is the function ran when an external user has connected, handle available context"
+    );
     console.log(e);
   };
   return {
