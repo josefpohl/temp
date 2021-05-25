@@ -7,7 +7,14 @@ export default class socketAPI {
   socket;
 
   async connect() {
-    this.socket = io.connect(host);
+    this.socket = io.connect(host, {
+      reconnection: true,
+      reconnectionDelay: 10000,
+      reconnectionDelayMax: 60000,
+      reconnectionAttempts: "Infinity",
+      timeout: 10000,
+      transports: ["websocket"],
+    });
     return new Promise((resolve, reject) => {
       this.socket.on("connect", () => resolve());
       this.socket.on("connect_error", (error) => reject(error));
@@ -24,11 +31,13 @@ export default class socketAPI {
   }
 
   async emit(event, data) {
+    console.log(`EMIT: ${JSON.stringify(event)} ${JSON.stringify(data)}`);
     return new Promise((resolve, reject) => {
       // if (!this.socket) return reject("No socket connection.");
 
       //We could have a more gracious reconnection flow here maybe with userconnected action also
       if (!this.socket) {
+        console.log("No Socket!!!");
         this.connect()
           .then(() => {
             console.log("reconnecting and now emitting", event);
@@ -39,7 +48,7 @@ export default class socketAPI {
             return reject("No socket connection could be established");
           });
       }
-
+      console.log("Above emit...");
       return this.socket.emit(event, data, (response) => {
         console.log("emittting");
         // Response is the optional callback that you can use with socket.io in every request. See 1 above.
