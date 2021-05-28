@@ -1,4 +1,4 @@
-import {LOADING_JOBS, SET_JOBS} from '../actions/actionTypes';
+import { LOADING_JOBS, SET_JOBS } from "../../actions/actionTypes";
 
 const initial_state = {
   loadingJobs: false,
@@ -8,9 +8,9 @@ const initial_state = {
 export default (state = initial_state, action) => {
   switch (action.type) {
     case LOADING_JOBS:
-      return {...state, loadingJobs: !state.loadingJobs};
+      return { ...state, loadingJobs: !state.loadingJobs };
     case SET_JOBS:
-      return {...state, allJobs: action.payload};
+      return { ...state, allJobs: action.payload };
     default:
       return state;
   }
