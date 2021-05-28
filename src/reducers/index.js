@@ -1,8 +1,8 @@
-import {combineReducers} from 'redux';
-import AuthReducer from './AuthReducer';
-import ProfileReducer from './ProfileReducer';
-import AvailableReducer from './AvailableReducer';
-import JobsReducer from './JobsReducer';
+import { combineReducers } from "redux";
+import AuthReducer from "./AuthReducer";
+import ProfileReducer from "./ProfileReducer";
+import AvailableReducer from "./AvailableReducer";
+import JobsReducer from "../components/JobComponents/JobsReducer";
 
 export default combineReducers({
   auth: AuthReducer,
