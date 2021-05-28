@@ -1,8 +1,8 @@
-import React from 'react';
-import {View, StyleSheet, Button, Text} from 'react-native';
-import {connect} from 'react-redux';
-
-import {logoutUser} from '../../actions/authenticationActions';
+import React from "react";
+import { View, StyleSheet, Text } from "react-native";
+import { connect } from "react-redux";
+import { Button } from "react-native-paper";
+import { logoutUser } from "../../actions/authenticationActions";
 
 const HomeScreen = ({
   navigation,
@@ -17,26 +17,36 @@ const HomeScreen = ({
       <Text>Hello Home View Screen {user.name}</Text>
       <View style={styles.buttonContainer}>
         <Button
-          color="#fff"
-          title="Go to Live Calls"
+          raised
+          mode="contained"
+          theme={{ roundness: 3 }}
           onPress={() => {
-            navigation.navigate('LiveCall');
+            navigation.navigate("LiveCall");
           }}
-        />
+        >
+          {" "}
+          Go to Live Calls{" "}
+        </Button>
         <Button
-          color="#fff"
-          title="Go to Asynch Recording"
+          raised
+          mode="contained"
+          theme={{ roundness: 3 }}
           onPress={() => {
-            navigation.navigate('Recording');
+            navigation.navigate("Recording");
           }}
-        />
+        >
+          Go to Asynch Recording
+        </Button>
         <Button
-          color="#fff"
-          title="Go to Jobs"
+          raised
+          mode="contained"
+          theme={{ roundness: 3 }}
           onPress={() => {
-            navigation.navigate('Jobs');
+            navigation.navigate("Jobs");
           }}
-        />
+        >
+          Go to Jobs
+        </Button>
       </View>
       <View style={styles.dataContainer}>
         <Text>My Profile: {profiles.userProfile.user.name}</Text>
@@ -45,7 +55,14 @@ const HomeScreen = ({
         <Text>Job count: {jobs.allJobs.length}</Text>
       </View>
       <View>
-        <Button color="#fff" title="Logout" onPress={() => logoutUser(user)} />
+        <Button
+          raised
+          mode="contained"
+          theme={{ roundness: 10 }}
+          onPress={() => logoutUser(user)}
+        >
+          Logout
+        </Button>
       </View>
     </View>
   );
@@ -58,27 +75,27 @@ const mapStateToProps = (state) => ({
   jobs: state.jobs,
 });
 
-const mapDispatchToProps = {logoutUser};
+const mapDispatchToProps = { logoutUser };
 
-export default connect(mapStateToProps, {logoutUser})(HomeScreen);
+export default connect(mapStateToProps, { logoutUser })(HomeScreen);
 const styles = StyleSheet.create({
   homeContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'green',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "green",
   },
   buttonContainer: {
     flex: 1,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    flexDirection: 'row',
+    justifyContent: "space-around",
+    alignItems: "center",
+    flexDirection: "row",
   },
   dataContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'stretch',
-    flexDirection: 'column',
-    backgroundColor: '#fff',
+    justifyContent: "center",
+    alignItems: "stretch",
+    flexDirection: "column",
+    backgroundColor: "#fff",
   },
 });

@@ -22,6 +22,7 @@ const RecordingScreen = ({ navigation, user }) => {
   return (
     <View style={styles.homeContainer}>
       <Text>Hello Recording Screen {user.name}</Text>
+      <Text>Now with TOAST examples!!!</Text>
       <Button
         color="#fff"
         title="Go Home"
@@ -51,6 +52,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "green",
   },
 });
