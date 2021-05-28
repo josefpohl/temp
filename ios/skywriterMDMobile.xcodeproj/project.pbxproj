@@ -19,6 +19,7 @@
 		57D8596255875AC4119C68CD /* libPods-skywriterMDMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D5319FF9A38E39226DD8B63 /* libPods-skywriterMDMobile.a */; };
 		6DD744319B4B2300A959EA0B /* libPods-skywriterMDMobile-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A0643C29E2EC0512246B7F /* libPods-skywriterMDMobile-tvOS.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		F86CC899265F330A00CF85DF /* libRNAudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F86CC898265F330A00CF85DF /* libRNAudio.a */; };
 		FA6A6416A5DFDACCB2DA9FA3 /* libPods-skywriterMDMobile-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7401768C7DFA5A0BA814F54E /* libPods-skywriterMDMobile-tvOSTests.a */; };
 /* End PBXBuildFile section */
 
@@ -36,6 +37,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2D02E47A1E0B4A5D006451C7;
 			remoteInfo = "skywriterMDMobile-tvOS";
+		};
+		F86CC890265F32B400CF85DF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F86CC88C265F32B400CF85DF /* RNAudio.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 42F559BA1CFC90C400DC3F84;
+			remoteInfo = RNAudio;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -66,6 +74,8 @@
 		D86B86C3D287F84549B7F8C3 /* libPods-skywriterMDMobile-skywriterMDMobileTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-skywriterMDMobile-skywriterMDMobileTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
+		F86CC88C265F32B400CF85DF /* RNAudio.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNAudio.xcodeproj; path = "../node_modules/react-native-audio/ios/RNAudio.xcodeproj"; sourceTree = "<group>"; };
+		F86CC898265F330A00CF85DF /* libRNAudio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNAudio.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC02B22E7AA370FA06DF6FEE /* Pods-skywriterMDMobile-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-skywriterMDMobile-tvOS.release.xcconfig"; path = "Target Support Files/Pods-skywriterMDMobile-tvOS/Pods-skywriterMDMobile-tvOS.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -82,6 +92,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F86CC899265F330A00CF85DF /* libRNAudio.a in Frameworks */,
 				57D8596255875AC4119C68CD /* libPods-skywriterMDMobile.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -125,6 +136,7 @@
 		13B07FAE1A68108700A75B9A /* skywriterMDMobile */ = {
 			isa = PBXGroup;
 			children = (
+				F86CC88C265F32B400CF85DF /* RNAudio.xcodeproj */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -139,6 +151,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F86CC898265F330A00CF85DF /* libRNAudio.a */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
 				3D5319FF9A38E39226DD8B63 /* libPods-skywriterMDMobile.a */,
@@ -203,7 +216,14 @@
 			children = (
 			);
 			name = Resources;
-			path = "";
+			sourceTree = "<group>";
+		};
+		F86CC88D265F32B400CF85DF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F86CC891265F32B400CF85DF /* libRNAudio.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -329,6 +349,12 @@
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = F86CC88D265F32B400CF85DF /* Products */;
+					ProjectRef = F86CC88C265F32B400CF85DF /* RNAudio.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* skywriterMDMobile */,
@@ -338,6 +364,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		F86CC891265F32B400CF85DF /* libRNAudio.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNAudio.a;
+			remoteRef = F86CC890265F32B400CF85DF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		00E356EC1AD99517003FC87E /* Resources */ = {
