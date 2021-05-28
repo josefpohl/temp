@@ -1,5 +1,5 @@
-import 'react-native-gesture-handler';
-import React from 'react';
+import "react-native-gesture-handler";
+import React from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -7,11 +7,10 @@ import {
   View,
   Text,
   StatusBar,
-} from 'react-native';
-import {Provider} from 'react-redux';
-
-import store from './src/store';
-import Navigation from './src/navigation/navigation';
+} from "react-native";
+import { Provider } from "react-redux";
+import store from "./src/store";
+import Navigation from "./src/navigation/navigation";
 
 export default function App() {
   return (

@@ -693,7 +693,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.skywritermd.skywriterMDMobileV4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.skywritermd.skywriterMDMobilev4;
 				PRODUCT_NAME = skywriterMDMobile;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 2;

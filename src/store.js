@@ -7,7 +7,7 @@ import SocketClient from "./socketio/SocketClient";
 
 const socketClient = new SocketClient();
 
-const middleware = [thunk, socketMiddleware(socketClient), logger];
+const middleware = [thunk, socketMiddleware(socketClient)]; //, logger];
 const initialState = {};
 
 store = createStore(
