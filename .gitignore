@@ -1,7 +1,7 @@
 config.js
 
 #PODS
-./ios/Pods
+ios/Pods/
 
 # Logs
 logs

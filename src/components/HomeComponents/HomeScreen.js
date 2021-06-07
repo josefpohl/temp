@@ -49,10 +49,18 @@ const HomeScreen = ({
         </Button>
       </View>
       <View style={styles.dataContainer}>
-        <Text>My Profile: {profiles.userProfile.user.name}</Text>
-        <Text>Profile count: {profiles.teamProfiles.length}</Text>
-        <Text>Available count: {availables.allAvailables.length}</Text>
-        <Text>Job count: {jobs.allJobs.length}</Text>
+        <Text style={styles.dataElements}>
+          My Profile: {profiles.userProfile.user.name}
+        </Text>
+        <Text style={styles.dataElements}>
+          Profile count: {profiles.teamProfiles.length}
+        </Text>
+        <Text style={styles.dataElements}>
+          Available count: {availables.allAvailables.length}
+        </Text>
+        <Text style={styles.dataElements}>
+          Job count: {jobs.allJobs.length}
+        </Text>
       </View>
       <View>
         <Button
@@ -82,7 +90,7 @@ const styles = StyleSheet.create({
   homeContainer: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "stretch",
     backgroundColor: "green",
   },
   buttonContainer: {
@@ -97,5 +105,9 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     flexDirection: "column",
     backgroundColor: "#fff",
+  },
+  dataElements: {
+    fontSize: 20,
+    marginLeft: 25,
   },
 });

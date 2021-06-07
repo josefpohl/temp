@@ -21,3 +21,11 @@ export const LOADING_JOBS = "LOADING_JOBS";
 export const SET_JOBS = "SET_JOBS";
 export const UPLOAD_JOB = "UPLOAD_JOB";
 export const LOAD_JOB_VIEW = "LOAD_JOB_VIEW";
+
+//LiveCalls
+// export const SET_SKYWRITER_IN_CALL = "SET_SKYWRWITER_IN_CALL";
+// export const SET_TOKEN = "SET_TOKEN";
+// export const CLEAR_LIVE_CALL = "CLEAR_LIVE_CALL";
+// export const LOADING_SKYWRITER = "LOADING_SKYWRITER";
+// export const FINDING_SKYWRITER_ERROR = "FINDING_SKYWRITER_ERROR";
+// export const SAVE_LIVECALL = "SAVE_LIVECALL";

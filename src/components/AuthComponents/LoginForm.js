@@ -1,17 +1,35 @@
-import React from 'react';
-import {View, StyleSheet, Button, TouchableOpacity, Text} from 'react-native';
-import {connect} from 'react-redux';
-import {loginUser} from '../../actions/authenticationActions';
+import React from "react";
+import { View, StyleSheet, Button, TouchableOpacity, Text } from "react-native";
+import { connect } from "react-redux";
+import { loginUser } from "../../actions/authenticationActions";
+import { TextInput } from "react-native-paper";
 
 const LoginForm = (props) => {
+  const [text, setText] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
   return (
-    <View style={styles.loginContainer}>
-      <Text style={styles.textContent}>Hello Login View Screen</Text>
-      <TouchableOpacity
-        style={styles.buttonStyle}
-        onPress={() => props.loginUser()}>
-        <Text style={styles.textContent}>Authenticate</Text>
-      </TouchableOpacity>
+    <View>
+      <View>
+        <View>
+          <TextInput
+            label="email"
+            value={text}
+            onChangeText={(text) => setText(text)}
+          />
+        </View>
+        <View>
+          <TextInput
+            label="password"
+            secureTextEntry
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+          />
+        </View>
+        <TouchableOpacity onPress={() => props.loginUser()}>
+          <Text>Authenticate</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -20,22 +38,6 @@ const mapStateToProps = (state) => {
   return {};
 };
 
-export default connect(mapStateToProps, {loginUser})(LoginForm);
+export default connect(mapStateToProps, { loginUser })(LoginForm);
 
-const styles = StyleSheet.create({
-  loginContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'blue',
-  },
-  textContent: {
-    fontSize: 15,
-    color: '#fff',
-  },
-  buttonStyle: {
-    elevation: 8,
-    backgroundColor: '#232323',
-    alignSelf: 'center',
-  },
-});
+const styles = StyleSheet.create({});
