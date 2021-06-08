@@ -26,9 +26,11 @@ const LoginForm = (props) => {
             onChangeText={(text) => setPassword(text)}
           />
         </View>
-        <TouchableOpacity onPress={() => props.loginUser()}>
-          <Text>Authenticate</Text>
-        </TouchableOpacity>
+        <View style={styles.loginButton}>
+          <TouchableOpacity onPress={() => props.loginUser()}>
+            <Text>Authenticate</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -40,4 +42,15 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, { loginUser })(LoginForm);
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  loginButton: {
+    marginTop: 45,
+    marginLeft: 200,
+  },
+  formContent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+  },
+});

@@ -7,6 +7,8 @@ import {
   ON_USER_CONNECTED_SUCCESS,
 } from "./types";
 
+import { addAvailable } from "../../actions/availableActions";
+
 export function userConnected(user) {
   console.log("userConnected function", user);
   return {
@@ -23,6 +25,7 @@ export function onUserConnected() {
       "This is the function ran when an external user has connected, handle available context"
     );
     console.log(e);
+    addAvailable(e);
   };
   return {
     type: "socket",

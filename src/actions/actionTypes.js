@@ -15,7 +15,7 @@ export const SET_TEAM_PROFILES = "SET_TEAM_PROFILES";
 //Team availability
 export const LOADING_AVAILABILITY = "LOADING_AVAILABILITY";
 export const SET_CURRENT_AVAILABLES = "SET_CURRENT_AVAILABLES";
-
+export const ADD_AVAILABLE = "ADD_AVAILABLE";
 //Jobs
 export const LOADING_JOBS = "LOADING_JOBS";
 export const SET_JOBS = "SET_JOBS";

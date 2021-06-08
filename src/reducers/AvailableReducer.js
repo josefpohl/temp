@@ -1,7 +1,8 @@
 import {
+  ADD_AVAILABLE,
   LOADING_AVAILABLES,
   SET_CURRENT_AVAILABLES,
-} from '../actions/actionTypes';
+} from "../actions/actionTypes";
 
 const initial_state = {
   loadingAvailables: false,
@@ -11,9 +12,12 @@ const initial_state = {
 export default (state = initial_state, action) => {
   switch (action.type) {
     case LOADING_AVAILABLES:
-      return {...state, loadingAvailables: !state.loadingAvailables};
+      return { ...state, loadingAvailables: !state.loadingAvailables };
     case SET_CURRENT_AVAILABLES:
-      return {...state, allAvailables: action.payload};
+      return { ...state, allAvailables: action.payload };
+    case ADD_AVAILABLE:
+      let newAvailables = allAvailables.push(user);
+      return { ...state, allAvailables: newAvailables };
     default:
       return state;
   }

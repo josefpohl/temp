@@ -46,7 +46,7 @@ const LiveCallScreen = ({
       setJoining(true);
     }
   }, [canjoin]);
-  return canjoin ? (
+  return joining ? (
     <LiveCallInProgress token={token} skywriter={skywriter} />
   ) : (
     <LiveCallSplashScreen text={initialize} />
