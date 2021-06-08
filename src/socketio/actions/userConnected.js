@@ -25,6 +25,9 @@ export function onUserConnected() {
       "This is the function ran when an external user has connected, handle available context"
     );
     console.log(e);
+    //Stefan -- This is where the AVAILABLE state in REDUX should be sent the user who logged in
+    // but the dispatch from here is unavailable.  Is there a way to send "e" to the
+    // Available reducer and add it to the list.
     addAvailable(e);
   };
   return {
