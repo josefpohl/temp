@@ -2,6 +2,7 @@ import React from "react";
 import { View, StyleSheet, Button, Text } from "react-native";
 import { connect } from "react-redux";
 import RecorderComponent from "AsyncRecording/RecorderComponent";
+import RecorderExample from "./RecorderExample";
 
 const RecordingScreen = ({ navigation, user }) => {
   return (
@@ -14,7 +15,7 @@ const RecordingScreen = ({ navigation, user }) => {
           navigation.navigate("Home");
         }}
       />
-      <RecorderComponent />
+      <RecorderExample />
     </View>
   );
 };

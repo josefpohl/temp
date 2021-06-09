@@ -11,6 +11,8 @@ target 'skywriterMDMobile' do
 
 
 
+  pod 'RNSound', :path => '../node_modules/react-native-sound'
+
   target 'skywriterMDMobileTests' do
     inherit! :complete
     # Pods for testing
