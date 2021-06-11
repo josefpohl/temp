@@ -12,7 +12,7 @@ export default class socketAPI {
       reconnectionDelay: 10000,
       reconnectionDelayMax: 60000,
       reconnectionAttempts: "Infinity",
-      timeout: 10000,
+      //timeout: 10000,
       transports: ["websocket"],
     });
     return new Promise((resolve, reject) => {

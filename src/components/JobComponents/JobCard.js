@@ -16,6 +16,15 @@
 //"recordingDurationSecs":38}
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import {
+  Card,
+  Title,
+  Paragraph,
+  Button,
+  Modal,
+  Portal,
+} from "react-native-paper";
+import moment from "moment";
 
 const styles = StyleSheet.create({
   cardContainer: {
@@ -23,20 +32,127 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "stretch",
+    alignSelf: "stretch",
     backgroundColor: "#999",
     marginBottom: 20,
   },
+  dataOuter: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  columnContent: {},
   cardText: {
     color: "#000",
   },
+  containerStyle: { backgroundColor: "white", padding: 20 },
+  pendingStatus: {
+    height: 15,
+    width: 15,
+    marginRight: 10,
+    backgroundColor: "red",
+    borderRadius: 15 / 2,
+  },
+  inProgressStatus: {
+    height: 15,
+    width: 15,
+    marginRight: 10,
+    backgroundColor: "yellow",
+    borderRadius: 15 / 2,
+  },
+  completeStatus: {
+    height: 15,
+    width: 15,
+    marginRight: 10,
+    backgroundColor: "green",
+    borderRadius: 15 / 2,
+  },
+  uploadingStatus: {
+    height: 15,
+    width: 15,
+    marginRight: 10,
+    backgroundColor: "black",
+    borderRadius: 15 / 2,
+  },
+  modalHeader: { fontSize: 25, fontWeight: "bold" },
+  flexDirHeaders: { flexDirection: "row" },
 });
 function JobCard({ job }) {
-  return (
-    <View style={styles.cardContainer}>
-      <Text style={styles.cardText}>Title: {job.description}</Text>
+  const [visible, setVisible] = React.useState(false);
 
-      <Text style={styles.cardText}>Created: {job.createDate}</Text>
-    </View>
+  const showModal = () => setVisible(true);
+  const hideModal = () => setVisible(false);
+  const stat = !job.isAssigned
+    ? { status: "pending", icon: styles.pendingStatus }
+    : job.isComplete
+    ? { status: "complete", icon: styles.completeStatus }
+    : job.isAssigned && !job.isComplete
+    ? { status: "inProgress", icon: styles.inProgressStatus }
+    : { status: "uploading", icon: styles.uploadingStatus };
+
+  return (
+    <Card style={styles.cardContainer}>
+      <Card.Title>{job.description}</Card.Title>
+      <Card.Content>
+        <Title>{job.description}</Title>
+        <View style={styles.dataOuter}>
+          <View style={styles.columnContent}>
+            <View style={styles.flexDirHeaders}>
+              <View style={stat.icon} />
+              <Text>
+                Status:
+                {stat.status}
+              </Text>
+            </View>
+            <Text>
+              Skywriter: {job.isAssigned ? job.skywriter.name : "Unassigned"}
+            </Text>
+          </View>
+          <View style={styles.columnContent}>
+            <Text>
+              Created: {moment(job.createDate).format("MM-DD-YYYY hh:mm:ss")}
+            </Text>
+            <Text>
+              Completed:
+              {job.completedDate
+                ? moment(job.completedDate).format("MM-DD-YYYY hh:mm:ss")
+                : "Not Complete"}
+            </Text>
+          </View>
+        </View>
+      </Card.Content>
+      <Card.Actions>
+        <Button onPress={showModal}>Listen</Button>
+      </Card.Actions>
+      <Portal>
+        <Modal
+          visible={visible}
+          onDismiss={hideModal}
+          contentContainerStyle={styles.containerStyle}
+        >
+          <View>
+            <View style={styles.flexDirHeaders}>
+              <View style={stat.icon} />
+              <Text style={styles.modalHeader}>{job.description}</Text>
+            </View>
+            <View>
+              <Text>Player would go here</Text>
+            </View>
+            <View>
+              <Text>
+                Created: {moment(job.createDate).format("MM-DD-YYYY hh:mm:ss")}
+              </Text>
+              <Text>
+                Completed:
+                {job.completedDate
+                  ? moment(job.completedDate).format("MM-DD-YYYY hh:mm:ss")
+                  : "Not Complete"}
+              </Text>
+            </View>
+          </View>
+        </Modal>
+      </Portal>
+    </Card>
   );
 }
 

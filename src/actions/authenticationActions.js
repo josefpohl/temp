@@ -44,14 +44,14 @@ export const passwordChanged = (text) => {
 };
 
 //Action
-export const loginUser = () => (dispatch) => {
+export const loginUser = (emailIn, passwordIn) => (dispatch) => {
+  console.log(`EMAIL and PASSWORD: ${emailIn} ${passwordIn}`);
   //DISPATCH CHECKING FOR TOKEN...
   dispatch(connect());
   dispatch(onUserConnected());
   dispatch({ type: USER_LOADING });
-  const email = "doc1@users.com";
+  const email = "doc5@users.com";
   const password = "Password1@";
-  console.log("Checking....");
   const uri = config.SERVER + "/api/users/login";
   axios
     .post(uri, { email, password }, { timeout: 5000 })

@@ -6,7 +6,9 @@ const JobScreen = ({ navigation, user, jobs }) => {
   const { allJobs, loadingJobs } = jobs;
   return (
     <View style={styles.homeContainer}>
-      <Text>Hello Job Screen {user.name}</Text>
+      <View>
+        <Text>Job search view goes here {user.name}</Text>
+      </View>
       <JobList jobs={allJobs} />
       <Button
         color="#fff"
@@ -30,7 +32,7 @@ const styles = StyleSheet.create({
   homeContainer: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "green",
+    alignItems: "flex-start",
+    backgroundColor: "#2e9aa7",
   },
 });
