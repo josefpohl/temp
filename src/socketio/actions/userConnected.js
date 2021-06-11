@@ -18,19 +18,21 @@ export function userConnected(user) {
   };
 }
 
-export function onUserConnected() {
-  console.log("userConnected listener exec");
+export const onUserConnected = () => (dispatch) => {
+  console.log("onUserConnected listener exec");
   const onUserConnected = (e) => {
     console.log(
       "This is the function ran when an external user has connected, handle available context"
     );
+    console.log("The dispatch func in onUserConnected: ", dispatch);
     console.log(e);
     //Stefan -- This is where the AVAILABLE state in REDUX should be sent the user who logged in
     // but the dispatch from here is unavailable.  Is there a way to send "e" to the
     // Available reducer and add it to the list.
-    addAvailable(e);
+    dispatch(addAvailable(e));
   };
-  return {
+
+  dispatch({
     type: "socket",
     types: [
       ON_USER_CONNECTED,
@@ -38,5 +40,5 @@ export function onUserConnected() {
       ON_USER_CONNECTED_FAIL,
     ],
     promise: (socket) => socket.on(USER_CONNECTED, onUserConnected),
-  };
-}
+  });
+};

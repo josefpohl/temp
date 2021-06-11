@@ -16,7 +16,7 @@ export default (state = initial_state, action) => {
     case SET_CURRENT_AVAILABLES:
       return { ...state, allAvailables: action.payload };
     case ADD_AVAILABLE:
-      let newAvailables = allAvailables.push(user);
+      let newAvailables = [...state.allAvailables, action.payload];
       return { ...state, allAvailables: newAvailables };
     default:
       return state;
