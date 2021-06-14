@@ -5,7 +5,7 @@ import {
   ON_ROOM_CONNECT,
   ON_ROOM_CONNECT_SUCCESS,
   ON_ROOM_CONNECT_FAIL,
-} from "./types";
+} from "../types";
 
 export function roomConnect(user, skywriter) {
   console.log(`connect request from ${user.name} to ${skywriter.name}`);

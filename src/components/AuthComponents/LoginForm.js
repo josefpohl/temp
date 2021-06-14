@@ -30,8 +30,8 @@ const LoginForm = (props) => {
   const AUTH_OPTIONS = {
     accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
     accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-    authenticationPrompt:
-      "Please use your thumbprint or facial recognition option",
+    // authenticationPrompt:
+    //   "Please use your thumbprint or facial recognition option",
     authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
   };
 

@@ -5,6 +5,9 @@ import {
   ON_USER_CONNECTED,
   ON_USER_CONNECTED_FAIL,
   ON_USER_CONNECTED_SUCCESS,
+  OFF_USER_CONNECTED,
+  OFF_USER_CONNECTED_FAIL,
+  OFF_USER_CONNECTED_SUCCESS,
 } from "./types";
 
 import { addAvailable } from "../../actions/availableActions";
@@ -18,18 +21,18 @@ export function userConnected(user) {
   };
 }
 
-export const onUserConnected = () => (dispatch) => {
+export const onUserConnected = () => (dispatch, getState) => {
   console.log("onUserConnected listener exec");
   const onUserConnected = (e) => {
-    console.log(
-      "This is the function ran when an external user has connected, handle available context"
-    );
-    console.log("The dispatch func in onUserConnected: ", dispatch);
-    console.log(e);
-    //Stefan -- This is where the AVAILABLE state in REDUX should be sent the user who logged in
-    // but the dispatch from here is unavailable.  Is there a way to send "e" to the
-    // Available reducer and add it to the list.
-    dispatch(addAvailable(e));
+    console.log(`On USER_CONNECTED: ${e.name}`);
+
+    const { teamProfiles } = getState().profiles;
+    const foundProfile = teamProfiles.find((p) => p.user?._id === e.id);
+    if (foundProfile) {
+      dispatch(addAvailable(e));
+    } else {
+      console.log(`${e.name} addition ignored`);
+    }
   };
 
   dispatch({
@@ -42,3 +45,15 @@ export const onUserConnected = () => (dispatch) => {
     promise: (socket) => socket.on(USER_CONNECTED, onUserConnected),
   });
 };
+
+export function offUserConnected() {
+  return {
+    type: "socket",
+    types: [
+      OFF_USER_CONNECTED,
+      OFF_USER_CONNECTED_SUCCESS,
+      OFF_USER_CONNECTED_FAIL,
+    ],
+    promise: (socket) => socket.off(USER_CONNECTED),
+  };
+}

@@ -60,6 +60,18 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>This app does NOT use the camera but underlying communication platforms may require acceptance in order to function.  SkywriterMD never enables video streams.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>This app allows the Face ID to be used for access.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>SkywriterMD does not use Location information but underlying utilities may require this information.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>SkywriterMD does not use Location information but underlying utilities may require this information.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SkywriterMD does not use Location information but underlying utilities may require this information.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app requires use of the microphone to communicate with Skywriters and to record asynchronous dictations.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

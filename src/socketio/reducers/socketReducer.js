@@ -1,9 +1,11 @@
 import {
   USER_CONNECTED,
-  // CONNECT,  remove these?
-  // CONNECT_FAIL,
-  // CONNECT_SUCCESS,
   USER_DISCONNECTED,
+  ROOM_INITIATE,
+  CALL_ACCEPT,
+  SKYWRITER_ARRIVED,
+  SEND_MESSAGE,
+  LEFT_LIVE_CALL,
 } from "../actions/types";
 
 const initial_state = {
@@ -17,6 +19,27 @@ export default (state = initial_state, action) => {
       return { ...state, data: action.payload };
     case USER_DISCONNECTED:
       console.log("USER DISCONNECTED EVENT");
+      return { ...state, data: action.payload };
+    case ROOM_INITIATE:
+      console.log("ROOM INITIATED EVENT");
+      return { ...state, data: action.payload };
+    case CALL_ACCEPT:
+      console.log(`CALL ACCEPT EVENT`);
+      return { ...state, data: action.payload };
+    case SKYWRITER_ARRIVED:
+      console.log(`SKYWRITER ARRIVED EVENT`);
+      return { ...state, data: action.payload };
+    case SEND_MESSAGE:
+      console.log(`SEND MESSAGE EVENT`);
+      return { ...state, data: action.payload };
+    case SKYWRITER_ARRIVED:
+      console.log(`SKYWRITER ARRIVED EVENT`);
+      return { ...state, data: action.payload };
+    case LEFT_LIVE_CALL:
+      console.log(`LEFT LIVE CALL EVENT`);
+      return { ...state, data: action.payload };
+    case LEAVING:
+      console.log(`LEAVING EVENT`);
       return { ...state, data: action.payload };
     default:
       return state;

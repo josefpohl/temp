@@ -5,7 +5,7 @@ import LiveCallSplashScreen from "./LiveCallSplashScreen";
 import LiveCallInProgress from "./LiveCallInProgress";
 import { getSkywriter, getToken } from "../../state/liveCalls";
 
-import { roomConnect } from "../../socketio/actions/roomConnect";
+import { roomConnect } from "../../socketio/actions/liveCallSocket";
 
 const LiveCallScreen = ({
   navigation,
@@ -16,7 +16,6 @@ const LiveCallScreen = ({
   roomConnect,
   skywriter,
   token,
-  socket,
 }) => {
   let [initialize, setInitialize] = React.useState("Loading");
 
@@ -43,11 +42,16 @@ const LiveCallScreen = ({
   React.useEffect(() => {
     if (canjoin) {
       roomConnect(user, skywriter.userLoggedIn);
-      setJoining(true);
+
+      setJoining(true); //Update on RoomInitiate
     }
   }, [canjoin]);
   return joining ? (
-    <LiveCallInProgress token={token} skywriter={skywriter} />
+    <LiveCallInProgress
+      token={token}
+      navigation={navigation}
+      skywriter={skywriter}
+    />
   ) : (
     <LiveCallSplashScreen text={initialize} />
   );
@@ -57,7 +61,6 @@ const mapStateToProps = (state) => ({
   user: state.auth.user,
   skywriter: state.livecalls.skywriter,
   token: state.livecalls.token,
-  socket: state.socket,
 });
 
 export default connect(mapStateToProps, {

@@ -5,14 +5,24 @@ import {
   CLEAR_LIVE_CALL,
   FINDING_SKYWRITER_ERROR,
   SAVE_LIVECALL,
+  ROOM_INITIATE,
+  CALL_ACCEPTED,
+  SEND_MESSAGE,
+  LEAVING,
+  SKYWRITER_ARRIVED,
 } from "./types";
 
 const initial_state = {
   skywriter: null,
   findingSkywriterError: false,
   loadingSkywriter: false,
-  roomName: "",
+  roomname: "",
   token: null,
+  canJoinRoom: false,
+  callAccepted: false,
+  skywriterArrived: true,
+  leavingCall: false,
+  messages: [],
 };
 
 export default (state = initial_state, action) => {
@@ -30,6 +40,17 @@ export default (state = initial_state, action) => {
       return { ...state, findingSkywriterError: true, loadingSkywriter: false };
     case SET_TOKEN:
       return { ...state, token: action.payload };
+    case ROOM_INITIATE:
+      return { ...state, roomname: action.payload.roomname, canJoinRoom: true };
+    case CALL_ACCEPTED:
+      return { ...state, callAccepted: true };
+    case SEND_MESSAGE:
+      let newMessages = [...state.messages, action.payload];
+      return { ...state, messages: newMessages };
+    case SKYWRITER_ARRIVED:
+      return { ...state, skywriterArrived: true };
+    case LEAVING:
+      return { ...state, leavingCall: true };
     default:
       return state;
   }

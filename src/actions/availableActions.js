@@ -1,4 +1,4 @@
-import { ADD_AVAILABLE } from "./actionTypes";
+import { ADD_AVAILABLE, REMOVE_AVAILABLE } from "./actionTypes";
 
 //Stefan -- Removed dispatch as proof of concept
 export const addAvailable = (user) => {
@@ -15,4 +15,8 @@ export const addAvailable = (user) => {
 
 export const removeAvailable = (user) => {
   console.log("REMOVE_AVAILABLE ACTION ", user);
+  return {
+    type: REMOVE_AVAILABLE,
+    payload: user,
+  };
 };

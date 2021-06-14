@@ -23,6 +23,13 @@ import { connect } from "../socketio/actions/connect";
 import { onUserConnected } from "../socketio/actions/userConnected";
 import { userConnected } from "../socketio/actions/userConnected";
 import {
+  onCallAccepted,
+  onMessage,
+  onRoomInitiate,
+  onSkywriterArrived,
+  onLeaving,
+} from "../socketio/actions/liveCallSocket";
+import {
   onUserDisconnected,
   userDisconnected,
 } from "../socketio/actions/userDisconnected";
@@ -49,6 +56,13 @@ export const loginUser = (emailIn, passwordIn) => (dispatch) => {
   //DISPATCH CHECKING FOR TOKEN...
   dispatch(connect());
   dispatch(onUserConnected());
+  dispatch(onUserDisconnected());
+  //TODO move this list of calls elsewhere????
+  dispatch(onRoomInitiate());
+  dispatch(onCallAccepted());
+  dispatch(onMessage());
+  dispatch(onSkywriterArrived());
+  dispatch(onLeaving());
   dispatch({ type: USER_LOADING });
   const email = "doc5@users.com";
   const password = "Password1@";
@@ -156,7 +170,7 @@ const getTeamAvailables = async (userid) => {
 //Action
 export const logoutUser = (user) => (dispatch) => {
   const uri = config.SERVER + `/api/users/logout/${user.id}`;
-  dispatch(onUserDisconnected());
+  //dispatch(onUserDisconnected());
   dispatch(userDisconnected(user));
 
   axios
