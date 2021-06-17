@@ -2,10 +2,12 @@ import React from "react";
 import {
   View,
   StyleSheet,
-  Button,
   Image,
   TouchableOpacity,
   Text,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { connect } from "react-redux";
 import _ from "lodash";
@@ -63,57 +65,61 @@ const LoginForm = (props) => {
   };
 
   return (
-    <View style={styles.wrapper}>
-      <View>
-        <Image
-          source={require("../img/SkywriterMD_Logo_mediumbluebackground.png")}
-          style={{
-            width: 400,
-            height: 150,
-            marginBottom: 20,
-            marginTop: 100,
-          }}
-        />
-      </View>
-      <View style={styles.formElements}>
-        <TextInput
-          style={{ flex: 1 }}
-          label="email"
-          value={email}
-          onChangeText={(email) => {
-            console.log(`email: ${email}`);
-            setEmail(email.toLowerCase());
-          }}
-        />
-      </View>
-      <View style={styles.formElements}>
-        <TextInput
-          style={{ flex: 1 }}
-          label="password"
-          secureTextEntry
-          value={password}
-          onChangeText={(password) => setPassword(password)}
-        />
-      </View>
-      <View style={styles.loginButton}>
-        <TouchableOpacity onPress={debounceLogin}>
-          <Text style={{ color: "#fff", fontSize: 25 }}>Authenticate</Text>
-        </TouchableOpacity>
-      </View>
-      <View>
-        <Icon.Button
-          name="fingerprint"
-          backgroundColor="#0E8AA5"
-          color="#fff"
-          onPress={bioMetricLogin}
-          size={75}
-        >
-          <Text style={{ color: "#fff", fontSize: 25 }}>
-            Login with thumbprint
-          </Text>
-        </Icon.Button>
-      </View>
-    </View>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={"padding"}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.wrapper}>
+          <View>
+            <Image
+              source={require("../img/SkywriterMD_Logo_mediumbluebackground.png")}
+              style={{
+                width: 400,
+                height: 150,
+                marginBottom: 20,
+                marginTop: 100,
+              }}
+            />
+          </View>
+          <View style={styles.formElements}>
+            <TextInput
+              style={{ flex: 1 }}
+              label="email"
+              value={email}
+              onChangeText={(email) => {
+                console.log(`email: ${email}`);
+                setEmail(email.toLowerCase());
+              }}
+            />
+          </View>
+          <View style={styles.formElements}>
+            <TextInput
+              style={{ flex: 1 }}
+              label="password"
+              secureTextEntry
+              value={password}
+              onChangeText={(password) => setPassword(password)}
+            />
+          </View>
+          <View style={styles.loginButton}>
+            <TouchableOpacity onPress={debounceLogin}>
+              <Text style={{ color: "#fff", fontSize: 25 }}>Authenticate</Text>
+            </TouchableOpacity>
+          </View>
+          <View>
+            <Icon.Button
+              name="fingerprint"
+              backgroundColor="#0E8AA5"
+              color="#fff"
+              onPress={bioMetricLogin}
+              size={75}
+            >
+              <Text style={{ color: "#fff", fontSize: 25 }}>
+                Login with thumbprint
+              </Text>
+            </Icon.Button>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

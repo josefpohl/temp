@@ -20,18 +20,36 @@ import {
 } from "./actionTypes";
 
 import { connect } from "../socketio/actions/connect";
-import { onUserConnected } from "../socketio/actions/userConnected";
+import {
+  onUserConnected,
+  offUserConnected,
+} from "../socketio/actions/userConnected";
 import { userConnected } from "../socketio/actions/userConnected";
 import {
-  onCallAccepted,
+  onCallAccept,
   onMessage,
   onRoomInitiate,
   onSkywriterArrived,
   onLeaving,
+  onLeftLiveCall,
+  onInLiveCall,
+  onTerminate,
+  onCallReject,
+  offCallAccept,
+  offInLiveCall,
+  offLeaving,
+  offLeftLiveCall,
+  offMessage,
+  //offRoomConnect, not needed yet
+  offRoomInitiate,
+  offSkywriterArrived,
+  offTerminate,
+  offCallReject,
 } from "../socketio/actions/liveCallSocket";
 import {
   onUserDisconnected,
   userDisconnected,
+  offUserDisconnected,
 } from "../socketio/actions/userDisconnected";
 
 import config from "../config";
@@ -59,13 +77,17 @@ export const loginUser = (emailIn, passwordIn) => (dispatch) => {
   dispatch(onUserDisconnected());
   //TODO move this list of calls elsewhere????
   dispatch(onRoomInitiate());
-  dispatch(onCallAccepted());
+  dispatch(onCallAccept());
   dispatch(onMessage());
   dispatch(onSkywriterArrived());
   dispatch(onLeaving());
+  dispatch(onLeftLiveCall());
+  dispatch(onInLiveCall());
+  dispatch(onTerminate());
+  dispatch(onCallReject());
   dispatch({ type: USER_LOADING });
-  const email = "doc5@users.com";
-  const password = "Password1@";
+  const email = emailIn; //"doc5@users.com";
+  const password = passwordIn; //"Password1@";
   const uri = config.SERVER + "/api/users/login";
   axios
     .post(uri, { email, password }, { timeout: 5000 })
@@ -159,7 +181,11 @@ const getTeamAvailables = async (userid) => {
   const teamAvailables = await axios
     .get(uri)
     .then((res) => {
-      return res.data;
+      //console.log(`GET TEAM AVAILABLES: ${JSON.stringify(res.data)}`);
+      const availablesSkywriters = res.data.filter(
+        (a) => a.userLoggedIn?.role === "skywriter"
+      );
+      return availablesSkywriters;
     })
     .catch((err) => {
       console.log(`Cannot get availability ${err}`);
@@ -170,14 +196,24 @@ const getTeamAvailables = async (userid) => {
 //Action
 export const logoutUser = (user) => (dispatch) => {
   const uri = config.SERVER + `/api/users/logout/${user.id}`;
-  //dispatch(onUserDisconnected());
   dispatch(userDisconnected(user));
-
+  dispatch(offUserConnected());
+  dispatch(offUserDisconnected());
+  dispatch(offRoomInitiate());
+  dispatch(offCallAccept());
+  dispatch(offMessage());
+  dispatch(offSkywriterArrived());
+  dispatch(offLeaving());
+  dispatch(offLeftLiveCall());
+  dispatch(offInLiveCall());
+  dispatch(offTerminate());
+  dispatch(offCallReject());
   axios
     .post(uri, {}, { timeout: 5000 })
     .then((user) => {
       dispatch({ type: LOGOUT_USER });
       AsyncStorage.removeItem("jwtToken");
+      AsyncStorage.removeItem("user");
       return { success: true, user };
     })
     .catch((err) => {

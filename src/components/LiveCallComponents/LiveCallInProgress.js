@@ -13,6 +13,8 @@ import {
   onLeaving,
 } from "../../socketio/actions/liveCallSocket/";
 
+import { cancelCall, afterCallDisconnect } from "../../state/liveCalls";
+
 const LiveCallInProgress = ({
   navigation,
   token,
@@ -27,12 +29,17 @@ const LiveCallInProgress = ({
   canJoinRoom,
   leaving,
   leavingCall,
+  rejectCall,
+  callWillEnd,
+  afterCallDisconnect,
 }) => {
   const twilioRef = React.useRef(null);
   const [muted, setMuted] = React.useState(false);
   const [canCancel, setCanCancel] = React.useState(true);
+  const [cancelledCall, setCancelledCall] = React.useState(false);
   const [audioTracks, setAudioTracks] = React.useState(new Map());
   const [connected, setConnected] = React.useState(false);
+
   React.useEffect(() => {
     if (skywriter && roomname && callAccepted) {
       setCanCancel(false);
@@ -45,25 +52,37 @@ const LiveCallInProgress = ({
         accessToken: token,
         roomName: roomname,
         enableVideo: false,
+        enableAudio: true,
       });
-
+      //twilioRef.current.setLocalVideoEnabled(false);
       setConnected(true);
     }
   }, [canJoinRoom, connected]);
 
   React.useEffect(() => {
-    if (leavingCall) {
+    if (callWillEnd) {
+      console.log(`LEAVING due to `);
       twilioRef.current.disconnect();
       //save call
-      navigation.pop();
+      //navigation.pop();
+      afterCallDisconnect();
     }
-  }, [leavingCall]);
+  }, [callWillEnd]);
+
+  React.useEffect(() => {
+    if (cancelledCall) {
+      console.log("Cancelled Call set");
+      callCancelled(user, skywriter.userLoggedIn, "From Button", roomname);
+      cancelCall();
+    }
+  }, [cancelledCall]);
+
   const cancelButton = (
     <Button
       raised
       mode="contained"
       theme={{ roundness: 3 }}
-      onPress={() => callCancelled(user, skywriter, "From Button", roomname)}
+      onPress={() => setCancelledCall(true)}
     >
       <Text style={styles.dataElements}>Cancel </Text>
     </Button>
@@ -125,6 +144,7 @@ const LiveCallInProgress = ({
 
     setAudioTracks(audioTracksLocal);
   };
+
   const _onParticipantDisabledAudioTrack = ({ participant, track }) => {
     console.log("Disabled Audio Track --", participant, track);
   };
@@ -154,10 +174,15 @@ const mapStateToProps = (state) => ({
   callAccepted: state.livecalls.callAccepted,
   canJoinRoom: state.livecalls.canJoinRoom,
   leavingCall: state.livecalls.leavingCall,
+  rejectCall: state.livecalls.rejectCall,
+  callWillEnd: state.livecalls.callWillEnd,
 });
-export default connect(mapStateToProps, { callCancelled, leaving })(
-  LiveCallInProgress
-);
+export default connect(mapStateToProps, {
+  callCancelled, //socket
+  leaving,
+  cancelCall, //redux
+  afterCallDisconnect,
+})(LiveCallInProgress);
 const styles = StyleSheet.create({
   splashContatiner: {
     flex: 1,

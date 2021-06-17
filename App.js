@@ -12,6 +12,7 @@ import { Provider } from "react-redux";
 import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
 import store from "./src/store";
 import Navigation from "./src/navigation/navigation";
+import AppStateListener from "./src/components/AppStateListener";
 
 const theme = {
   ...DefaultTheme,
@@ -26,6 +27,7 @@ export default function App() {
   return (
     <Provider store={store}>
       <PaperProvider theme={theme}>
+        <AppStateListener />
         <Navigation />
       </PaperProvider>
     </Provider>

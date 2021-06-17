@@ -1,18 +1,28 @@
 import React from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, AppState } from "react-native";
 import { connect } from "react-redux";
 import { Button } from "react-native-paper";
 import { logoutUser } from "../../actions/authenticationActions";
 import { debounce } from "lodash";
+import Toast from "react-native-toast-message";
+import AppStateListener from "../AppStateListener";
 
 const HomeScreen = ({
   navigation,
   user,
   profiles,
   availables,
+  allAvailables,
   jobs,
   logoutUser,
 }) => {
+  const [availableCount, setAvailableCount] = React.useState(0);
+  React.useEffect(() => {
+    const filtered = availables.allAvailables.filter((a) => {
+      return a.isAvailable && !a.inLiveCall;
+    });
+    setAvailableCount(filtered.length);
+  }, [allAvailables]);
   const liveDebounce = React.useCallback(
     debounce(() => {
       navigation.navigate("LiveCall");
@@ -32,6 +42,15 @@ const HomeScreen = ({
     }, 500),
     []
   );
+  const noSkywritersToast = () => {
+    Toast.show({
+      text1: "No skywriters available",
+      text2: "Please try again or contact the Team Lead",
+      autoHide: true,
+      visibilityTime: 5000,
+    });
+  };
+
   return (
     <View style={styles.homeContainer}>
       <Text>Hello Home View Screen {user.name}</Text>
@@ -39,8 +58,9 @@ const HomeScreen = ({
         <Button
           raised
           mode="contained"
+          color={availableCount > 0 ? null : "#d3d5d6"}
           theme={{ roundness: 3 }}
-          onPress={liveDebounce}
+          onPress={availableCount > 0 ? liveDebounce : noSkywritersToast}
         >
           <Text style={styles.dataElements}>Go to Live Calls</Text>
         </Button>
@@ -69,7 +89,8 @@ const HomeScreen = ({
           Profile count: {profiles.teamProfiles.length}
         </Text>
         <Text style={styles.dataElements}>
-          Available count: {availables.allAvailables.length}
+          Available count:
+          {availableCount}
         </Text>
         <Text style={styles.dataElements}>
           Job count: {jobs.allJobs.length}
@@ -93,6 +114,7 @@ const mapStateToProps = (state) => ({
   user: state.auth.user,
   profiles: state.profiles,
   availables: state.availables,
+  allAvailables: state.availables.allAvailables,
   jobs: state.jobs,
 });
 

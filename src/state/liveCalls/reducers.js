@@ -1,3 +1,4 @@
+import { CALL_REJECT } from "../../socketio/actions/types";
 import {
   LOADING_SKYWRITER,
   SET_SKYWRITER_IN_CALL,
@@ -10,6 +11,8 @@ import {
   SEND_MESSAGE,
   LEAVING,
   SKYWRITER_ARRIVED,
+  LEFT_LIVE_CALL,
+  CALL_CANCELLED,
 } from "./types";
 
 const initial_state = {
@@ -21,7 +24,11 @@ const initial_state = {
   canJoinRoom: false,
   callAccepted: false,
   skywriterArrived: true,
+  callWillEnd: false,
   leavingCall: false,
+  savedLiveCall: false,
+  callCancelled: false,
+  rejectCall: false,
   messages: [],
 };
 
@@ -50,6 +57,16 @@ export default (state = initial_state, action) => {
     case SKYWRITER_ARRIVED:
       return { ...state, skywriterArrived: true };
     case LEAVING:
+      return { ...state, callWillEnd: true };
+    case CLEAR_LIVE_CALL:
+      return { ...state, ...initial_state };
+    case SAVE_LIVECALL:
+      return { ...state, savedLiveCall: true };
+    case CALL_CANCELLED:
+      return { ...state, callWillEnd: true, callCancelled: true };
+    case CALL_REJECT:
+      return { ...state, rejectCall: true, callWillEnd: true };
+    case CALL_DISCONNECTED:
       return { ...state, leavingCall: true };
     default:
       return state;

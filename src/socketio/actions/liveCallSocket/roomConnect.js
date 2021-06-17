@@ -5,6 +5,9 @@ import {
   ON_ROOM_CONNECT,
   ON_ROOM_CONNECT_SUCCESS,
   ON_ROOM_CONNECT_FAIL,
+  OFF_ROOM_CONNECT,
+  OFF_ROOM_CONNECT_SUCCESS,
+  OFF_ROOM_CONNECT_FAIL,
 } from "../types";
 
 export function roomConnect(user, skywriter) {
@@ -30,5 +33,13 @@ export function onRoomConnect(data) {
     type: "socket",
     types: [ON_ROOM_CONNECT, ON_ROOM_CONNECT_SUCCESS, ON_ROOM_CONNECT_FAIL],
     promise: (socket) => socket.on(ROOM_CONNECT, onRoomConnect),
+  };
+}
+
+export function offRoomConnect() {
+  return {
+    type: "socket",
+    types: [OFF_ROOM_CONNECT, OFF_ROOM_CONNECT_SUCCESS, OFF_ROOM_CONNECT_FAIL],
+    promise: (socket) => socket.off(ROOM_CONNECT),
   };
 }

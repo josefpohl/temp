@@ -5,6 +5,9 @@ import {
   ON_SEND_MESSAGE,
   ON_SEND_MESSAGE_SUCCESS,
   ON_SEND_MESSAGE_FAIL,
+  OFF_SEND_MESSAGE,
+  OFF_SEND_MESSAGE_SUCCESS,
+  OFF_SEND_MESSAGE_FAIL,
 } from "../types";
 
 import { addMessage } from "../../../state/liveCalls";
@@ -29,3 +32,11 @@ export const onMessage = () => (dispatch) => {
     promise: (socket) => socket.on(SEND_MESSAGE, onMessageIncoming),
   });
 };
+
+export function offMessage() {
+  return {
+    type: "socket",
+    types: [OFF_SEND_MESSAGE, OFF_SEND_MESSAGE_SUCCESS, OFF_SEND_MESSAGE_FAIL],
+    promise: (socket) => socket.off(SEND_MESSAGE),
+  };
+}

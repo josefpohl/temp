@@ -9,8 +9,11 @@ import {
   SEND_MESSAGE,
   CALL_ACCEPT,
   LEAVING,
-  LEFT_LIVE_CALL,
   SKYWRITER_ARRIVED,
+  CALL_CANCELLED,
+  TERMINATE_CALL,
+  CALL_REJECT,
+  CALL_DISONNECTED,
 } from "./types";
 import axios from "axios";
 import config from "../../config";
@@ -44,7 +47,9 @@ export const getSkywriter = (user) => (dispatch) => {
       console.log(`GET SKYWRITER ${JSON.stringify(res.data)}`);
       let skywriter = null;
       if (res.data.length > 0) {
-        skywriter = res.data[0];
+        const skywriters = res.data;
+        const sorted = skywriters.sort((a, b) => sortByLastCall(a, b));
+        skywriter = sorted[0];
       }
       // setTimeout(
       //   () =>
@@ -90,7 +95,6 @@ export const addMessage = (data) => {
 };
 
 export const skywriterArrived = (data) => {
-  console.log(`SKYWRITER ARRIVED ${JSON.stringify(data)}`);
   return {
     type: SKYWRITER_ARRIVED,
     payload: data,
@@ -98,21 +102,63 @@ export const skywriterArrived = (data) => {
 };
 
 export const leavingCall = (data) => {
-  console.log(`PARTICIPANT LEAVING ${JSON.stringify(data)}`);
+  //console.log(`PARTICIPANT LEAVING ${JSON.stringify(data)}`);
   return {
     type: LEAVING,
     payload: data,
   };
 };
 
-export const leftLiveCall = (data) => {
-  console.log(`PARTICIPANT LEFT LIVE CALL ${JSON.stringify(data)}`);
+export const cancelCall = () => {
   return {
-    type: LEFT_LIVE_CALL,
-    payload: data,
+    type: CALL_CANCELLED,
+  };
+};
+export const saveCall = async () => {
+  console.log(`Saving call`);
+  return new Promise((resolve) => setTimeout(resolve, 2000));
+};
+
+export const clearLiveCall = () => (dispatch) => {
+  dispatch({
+    type: CLEAR_LIVE_CALL,
+  });
+};
+
+export const terminateCall = ({ receiver, sender, roomname }) => {
+  console.log(`Redux terminate call action`);
+  return {
+    type: TERMINATE_CALL,
+    payload: { receiver, sender, roomname },
   };
 };
 
-export const saveCall = (data) => {
-  console.log(`Saving call ${JSON.stringify(data)}`);
+export const callReject = ({ receiver, sender }) => {
+  console.log(`Call reject action ${receiver.name} ${sender.name}`);
+  return {
+    type: CALL_REJECT,
+    payload: { receiver, sender },
+  };
 };
+
+export const afterCallDisconnect = () => {
+  console.log(`Call disconnected. Continue processing`);
+  return { type: CALL_DISONNECTED };
+};
+
+function sortByLastCall(a, b) {
+  if (a.lastLiveCallTime && b.lastLiveCallTime) {
+    if (a.lastLiveCallTime >= b.lastLiveCallTime) {
+      return 1;
+    } else {
+      return -1;
+    }
+  }
+  if (!a.lastLiveCallTime) {
+    return -1;
+  }
+  if (b.lastLiveCallTime) {
+    return 1;
+  }
+  return 0;
+}

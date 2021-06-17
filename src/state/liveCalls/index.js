@@ -5,9 +5,13 @@ import {
   addCallAccepted,
   addMessage,
   skywriterArrived,
-  leftLiveCall,
-  leaving,
+  leavingCall,
   saveCall,
+  clearLiveCall,
+  cancelCall,
+  terminateCall,
+  callReject,
+  afterCallDisconnect,
 } from "./actions";
 import LiveCallReducer from "./reducers";
 
@@ -18,8 +22,12 @@ export {
   addCallAccepted,
   addMessage,
   skywriterArrived,
-  leftLiveCall,
-  leaving,
+  leavingCall,
   saveCall,
+  clearLiveCall,
+  cancelCall,
+  terminateCall,
+  callReject,
+  afterCallDisconnect,
   LiveCallReducer,
 };

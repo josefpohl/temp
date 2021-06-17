@@ -5,6 +5,9 @@ import {
   ON_LEAVING,
   ON_LEAVING_SUCCESS,
   ON_LEAVING_FAIL,
+  OFF_LEAVING,
+  OFF_LEAVING_SUCCESS,
+  OFF_LEAVING_FAIL,
 } from "../types";
 
 import { leavingCall } from "../../../state/liveCalls";
@@ -16,7 +19,7 @@ export const leaving = ({
   terminatedBySender,
   from,
 }) => {
-  console.log(`Leaving`);
+  console.log(`Leaving socket emit event`);
   return {
     type: "socket",
     types: [LEAVING, LEAVING_SUCCESS, LEAVING_FAIL],
@@ -43,3 +46,11 @@ export const onLeaving = () => (dispatch) => {
     promise: (socket) => socket.on(LEAVING, onLeaving),
   });
 };
+
+export function offLeaving() {
+  return {
+    type: "socket",
+    types: [OFF_LEAVING, OFF_LEAVING_SUCCESS, OFF_LEAVING_FAIL],
+    promise: (socket) => socket.off(LEAVING),
+  };
+}

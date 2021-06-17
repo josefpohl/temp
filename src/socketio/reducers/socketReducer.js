@@ -1,3 +1,4 @@
+import { IN_LIVE_CALL } from "../../actions/actionTypes";
 import {
   USER_CONNECTED,
   USER_DISCONNECTED,
@@ -6,6 +7,8 @@ import {
   SKYWRITER_ARRIVED,
   SEND_MESSAGE,
   LEFT_LIVE_CALL,
+  TERMINATE_CALL,
+  CALL_REJECT,
 } from "../actions/types";
 
 const initial_state = {
@@ -32,14 +35,20 @@ export default (state = initial_state, action) => {
     case SEND_MESSAGE:
       console.log(`SEND MESSAGE EVENT`);
       return { ...state, data: action.payload };
-    case SKYWRITER_ARRIVED:
-      console.log(`SKYWRITER ARRIVED EVENT`);
-      return { ...state, data: action.payload };
     case LEFT_LIVE_CALL:
       console.log(`LEFT LIVE CALL EVENT`);
       return { ...state, data: action.payload };
+    case IN_LIVE_CALL:
+      console.log(`IN LIVE CALL EVENT`);
+      return { ...state, data: action.payload };
     case LEAVING:
       console.log(`LEAVING EVENT`);
+      return { ...state, data: action.payload };
+    case TERMINATE_CALL:
+      console.log(`TERMINATE CALL EVENT`);
+      return { ...state, data: action.payload };
+    case CALL_REJECT:
+      console.log(`CALL REJECT EVENT`);
       return { ...state, data: action.payload };
     default:
       return state;

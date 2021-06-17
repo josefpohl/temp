@@ -5,6 +5,9 @@ import {
   ON_USER_DISCONNECTED,
   ON_USER_DISCONNECTED_FAIL,
   ON_USER_DISCONNECTED_SUCCESS,
+  OFF_USER_DISCONNECTED,
+  OFF_USER_DISCONNECTED_SUCCESS,
+  OFF_USER_DISCONNECTED_FAIL,
 } from "./types";
 
 import { removeAvailable } from "../../actions/availableActions";
@@ -44,3 +47,15 @@ export const onUserDisconnected = () => (dispatch, getState) => {
     promise: (socket) => socket.on(USER_DISCONNECTED, onUserDisconnected),
   });
 };
+
+export function offUserDisconnected() {
+  return {
+    type: "socket",
+    types: [
+      OFF_USER_DISCONNECTED,
+      OFF_USER_DISCONNECTED_SUCCESS,
+      OFF_USER_DISCONNECTED_FAIL,
+    ],
+    promise: (socket) => socket.off(USER_DISCONNECTED),
+  };
+}

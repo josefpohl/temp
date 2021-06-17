@@ -3,6 +3,8 @@ import {
   LOADING_AVAILABLES,
   SET_CURRENT_AVAILABLES,
   REMOVE_AVAILABLE,
+  LEFT_LIVE_CALL,
+  IN_LIVE_CALL,
 } from "../actions/actionTypes";
 
 const initial_state = {
@@ -17,14 +19,69 @@ export default (state = initial_state, action) => {
     case SET_CURRENT_AVAILABLES:
       return { ...state, allAvailables: action.payload };
     case ADD_AVAILABLE:
-      let newAvailables = [...state.allAvailables, action.payload];
-      return { ...state, allAvailables: newAvailables };
+      let newAvailables = [...state.allAvailables, action.payload.available];
+      return {
+        ...state,
+        allAvailables: newAvailables,
+        updatingAvailables: true,
+      };
     case REMOVE_AVAILABLE:
-      const id = action.payload.id;
-      let index = state.allAvailables.indexOf((a) => a.id === id);
-      let newAvailablesDisc = [...state.allAvailables.splice(index, 1)];
-      return { ...state, allAvailables: newAvailablesDisc };
+      const id = getId(action.payload);
+      let index = state.allAvailables.findIndex(
+        (a) => getId(a.userLoggedIn) === id
+      );
+      let newAvailablesDisco = state.allAvailables;
+      newAvailablesDisco.splice(index, 1);
+
+      return {
+        ...state,
+        allAvailables: [...newAvailablesDisco],
+      };
+    case LEFT_LIVE_CALL:
+      console.log(`Available LEFT Reducer ${JSON.stringify(action.payload)}`);
+      if (action.payload === null || action.payload?.role !== "skywriter")
+        return state;
+      const idLLC = getId(action.payload);
+      let indexLLC = state.allAvailables.findIndex(
+        (a) => getId(a.userLoggedIn) === idLLC
+      );
+      let newAvailLLC = state.allAvailables[indexLLC];
+      newAvailLLC.isAvailable = true;
+      newAvailLLC.inLiveCall = false;
+      let newAvailablesLLC = state.allAvailables;
+      newAvailablesLLC.splice(indexLLC, 1, newAvailLLC);
+      return {
+        ...state,
+        allAvailables: [...newAvailablesLLC],
+      };
+    case IN_LIVE_CALL:
+      console.log(`Available IN Reducer ${JSON.stringify(action.payload)}`);
+      if (action.payload === null || action.payload?.role !== "skywriter")
+        return state;
+      const idILC = getId(action.payload);
+      let indexILC = state.allAvailables.findIndex(
+        (a) => getId(a.userLoggedIn) === idILC
+      );
+      let newAvail = state.allAvailables[indexILC];
+      newAvail.isAvailable = false;
+      newAvail.inLiveCall = true;
+      let newAvailablesILC = state.allAvailables;
+      newAvailablesILC.splice(indexILC, 1, newAvail);
+      return {
+        ...state,
+        allAvailables: [...newAvailablesILC],
+      };
     default:
       return state;
   }
 };
+
+function getId(user) {
+  if (user.id) {
+    console.log("GET ID", user.id);
+    return user.id;
+  } else {
+    console.log("GET ID", user._id);
+    return user._id;
+  }
+}

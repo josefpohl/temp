@@ -72,4 +72,13 @@ export default class socketAPI {
       resolve();
     });
   }
+  off(event) {
+    // No promise is needed here, but we're expecting one in the middleware.
+    return new Promise((resolve, reject) => {
+      if (!this.socket) return reject("No socket connection.");
+
+      this.socket.off(event);
+      resolve();
+    });
+  }
 }
