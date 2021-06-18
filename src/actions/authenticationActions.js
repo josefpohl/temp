@@ -46,7 +46,7 @@ export const passwordChanged = (text) => {
 //Action
 export const loginUser = () => (dispatch) => {
   //DISPATCH CHECKING FOR TOKEN...
-  dispatch(connect());
+  dispatch(connect()); //We should connect when app is active instead
   dispatch(onUserConnected());
   dispatch({ type: USER_LOADING });
   const email = "doc1@users.com";
