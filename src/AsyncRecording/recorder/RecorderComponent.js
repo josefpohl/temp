@@ -10,15 +10,24 @@ import { Alert } from "react-native";
 //1. UI wise, how does this look?
 //2. Start recording functionality - OK
 //2.1. Title entered modal?
-//2.2 If playing, render stop button
+//2.2 If playing, render stop button - OK
+//2.3 If playing, render pause button
 //3. Playback/Pause/Resume/Record functionality
 //4. File upload functionality
 //5. Some kind of call functionality?
 //6. Delete functionality
 //If recording is paused, show player
 
+const PLAYERSTATE = {
+  STOPPED: "STOPPED",
+  RECORDING: "RECORDING",
+  PLAYING: "PLAYING",
+  PAUSED: "PAUSED",
+};
+Object.freeze(PLAYERSTATE);
+
 export default function RecorderComponent() {
-  const [isRecording, setIsRecording] = useState(false);
+  const [playerState, setPlayerState] = useState(PLAYERSTATE.STOPPED);
   const [decibels, setDecibels] = useState(-180);
   const [audioFileName, setAudioFileName] = useState("");
 
@@ -31,7 +40,7 @@ export default function RecorderComponent() {
         const filePath = await AudioRecorder.startRecording();
         console.log("Recording now", filePath);
       });
-      setIsRecording(true);
+      setPlayerState(PLAYERSTATE.RECORDING);
     } catch (err) {
       console.error(err);
     }
@@ -40,7 +49,7 @@ export default function RecorderComponent() {
   async function endRecording() {
     await AudioRecorder.stopRecording();
     Alert.alert(audioFileName);
-    setIsRecording(false);
+    setPlayerState(PLAYERSTATE.STOPPED);
   }
 
   AudioRecorder.onProgress = (data) => {
@@ -62,12 +71,27 @@ export default function RecorderComponent() {
     );
   }
 
-  if (isRecording) {
+  async function pauseRecording() {
+    try {
+      console.log("Pausing recording");
+      setTimeout(async () => {
+        await AudioRecorder.pauseRecording();
+        setPlayerState(PLAYERSTATE.PAUSED);
+      }, 500);
+    } catch (error) {
+      console.log("Recording Pause Error -- ", error);
+    }
+  }
+
+  if (playerState === PLAYERSTATE.RECORDING) {
     return (
-      <>
+      <View style={styles.buttonView}>
         <Icon size={100} name="stop" color="black" onPress={endRecording} />
+        <Text style={styles.buttonLabelText}>End recording</Text>
+        <Icon size={100} name="pause" color="white" onPress={pauseRecording} />
+        <Text style={styles.buttonLabelText}>Pause</Text>
         <VUMeter decibels={decibels} />
-      </>
+      </View>
     );
   }
   return (
