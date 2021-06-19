@@ -65,9 +65,11 @@ export const uploadNewJob = ({ jobData, audioFileName }) => (dispatch) => {
   const uri = config.SERVER + "/api/jobs";
   console.log("In uploadNewJob", jobData, uri);
   dispatch(setJobLoading());
+  debugger;
   axios
     .post(uri, jobData)
     .then((res) => {
+      debugger;
       console.log("Upload Response", res.data);
       // if (!second) {
       //   throw (Error, { message: "dummy error" });

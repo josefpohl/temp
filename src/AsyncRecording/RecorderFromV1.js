@@ -255,6 +255,7 @@ class RecordScreen extends Component {
       return;
     }
 
+    //Not sure why we are doing this, something with player functionality? - Stefan
     if (this.sound) {
       this.sound.release();
       this.sound = null;

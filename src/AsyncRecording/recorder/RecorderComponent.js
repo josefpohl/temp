@@ -5,13 +5,17 @@ import { AudioRecorder, AudioUtils } from "react-native-audio";
 import VUMeter from "AsyncRecording/VUMeter";
 import { v4 as uuid } from "uuid";
 import { Alert } from "react-native";
+import { useDispatch } from "react-redux";
+import { uploadNewJob } from "actions/jobActions";
 
 //TODO
 //1. UI wise, how does this look?
 //2. Start recording functionality - OK
 //2.1. Title entered modal?
 //2.2 If playing, render stop button - OK
-//2.3 If playing, render pause button
+//2.3 If playing, render pause button - OK
+//2.4 When paused, render Resume recording button - OK
+//2.5 End recording functionality
 //3. Playback/Pause/Resume/Record functionality
 //4. File upload functionality
 //5. Some kind of call functionality?
@@ -26,17 +30,23 @@ const PLAYERSTATE = {
 };
 Object.freeze(PLAYERSTATE);
 
+const fileExtension = ".aac";
+
 export default function RecorderComponent() {
   const [playerState, setPlayerState] = useState(PLAYERSTATE.STOPPED);
   const [decibels, setDecibels] = useState(-180);
-  const [audioFileName, setAudioFileName] = useState("");
+  const [recordSecondsCounter, setRecordSecondsCounter] = useState(0);
+  const [audioFilePath, setAudioFilePath] = useState("");
+  const [audioFileBase, setAudioFileBase] = useState("");
+  const [title, setTitle] = useState("TestTitle");
+  const dispatch = useDispatch();
 
   async function startRecording() {
     try {
-      const audioFileName = `/${uuid()}.aac`;
-      setAudioFileName(audioFileName);
+      const audioFileBase = uuid();
+      setAudioFileBase(audioFileBase);
       AudioRecorder.requestAuthorization().then(async () => {
-        await prepareRecordingPath(audioFileName);
+        await prepareRecordingPath(audioFileBase);
         const filePath = await AudioRecorder.startRecording();
         console.log("Recording now", filePath);
       });
@@ -48,38 +58,68 @@ export default function RecorderComponent() {
 
   async function endRecording() {
     await AudioRecorder.stopRecording();
-    Alert.alert(audioFileName);
+    Alert.alert(audioFilePath);
     setPlayerState(PLAYERSTATE.STOPPED);
+    prepareFileAndUpload();
+  }
+
+  async function prepareFileAndUpload() {
+    const jobData = new FormData();
+    jobData.append("selectedFile", {
+      uri: "file://" + audioFilePath,
+      name: audioFileBase + ".aac",
+    });
+    jobData.append("lastModified", new Date());
+    jobData.append("name", audioFileBase);
+    jobData.append("description", title);
+    jobData.append("type", "audio/aac");
+    jobData.append("duration", recordSecondsCounter);
+    console.log("jobData", JSON.stringify(jobData));
+    dispatch(
+      uploadNewJob({
+        jobData,
+        audioFileName: audioFilePath,
+      })
+    );
   }
 
   AudioRecorder.onProgress = (data) => {
     let decibels = Math.floor(data.currentMetering);
     setDecibels(decibels);
+    setRecordSecondsCounter(Math.floor(data.currentTime));
   };
 
-  async function prepareRecordingPath(audioFileName) {
-    await AudioRecorder.prepareRecordingAtPath(
-      AudioUtils.DocumentDirectoryPath + audioFileName,
-      {
-        SampleRate: 22050,
-        Channels: 1,
-        AudioQuality: "Low",
-        AudioEncoding: "aac",
-        AudioEncodingBitRate: 32000,
-        MeteringEnabled: true,
-      }
-    );
+  async function prepareRecordingPath(audioFileBase) {
+    const audioFilePath =
+      AudioUtils.DocumentDirectoryPath + "/" + audioFileBase + ".aac";
+    setAudioFilePath(audioFilePath);
+    await AudioRecorder.prepareRecordingAtPath(audioFilePath, {
+      SampleRate: 22050,
+      Channels: 1,
+      AudioQuality: "Low",
+      AudioEncoding: "aac",
+      AudioEncodingBitRate: 32000,
+      MeteringEnabled: true,
+    });
   }
 
   async function pauseRecording() {
     try {
-      console.log("Pausing recording");
       setTimeout(async () => {
         await AudioRecorder.pauseRecording();
         setPlayerState(PLAYERSTATE.PAUSED);
       }, 500);
     } catch (error) {
-      console.log("Recording Pause Error -- ", error);
+      console.error("Recording Pause Error -- ", error);
+    }
+  }
+
+  async function resumeRecording() {
+    try {
+      await AudioRecorder.resumeRecording();
+      setPlayerState(PLAYERSTATE.RECORDING);
+    } catch (error) {
+      console.error("ERROR on resuming recording --", error);
     }
   }
 
@@ -94,17 +134,30 @@ export default function RecorderComponent() {
       </View>
     );
   }
+
+  if (playerState === PLAYERSTATE.PAUSED) {
+    return (
+      <>
+        <Icon
+          size={100}
+          name="fiber-manual-record"
+          color="red"
+          onPress={resumeRecording}
+        />
+        <Text style={styles.buttonLabelText}>Resume recording</Text>
+      </>
+    );
+  }
+
   return (
     <View style={styles.buttonView}>
       <Icon
         size={100}
         name="fiber-manual-record"
-        // disabled={!this.state.titleEntered}
         color="red"
         onPress={startRecording}
       />
       <Text style={styles.buttonLabelText}>Record</Text>
-      <VUMeter decibels={decibels} />
     </View>
   );
 }
