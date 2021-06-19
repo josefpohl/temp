@@ -20,6 +20,13 @@ export const SET_CURRENT_AVAILABLES = "SET_CURRENT_AVAILABLES";
 export const LOADING_JOBS = "LOADING_JOBS";
 export const SET_JOBS = "SET_JOBS";
 export const STORE_JOBINPROGRESS = "STORE_JOBINPROGRESS";
+export const ADD_NEW_JOB = "ADD_NEW_JOB";
+export const UPDATE_NEW_JOB = "UPDATE_NEW_JOB";
+export const GET_USERSJOBS = "GET_USERSJOBS";
+export const GET_JOB = "GET_JOB";
+export const ADD_URL = "ADD_URL";
+export const TITLE_CHANGED = "TITLE_CHANGED";
+export const NEW_JOB_SUBMITTED = "NEW_JOB_SUBMITTED";
 
 //Live call
 export const CALL_ENDED = "CALL_ENDED";
