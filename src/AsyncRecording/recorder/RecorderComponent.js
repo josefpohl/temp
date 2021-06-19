@@ -58,7 +58,6 @@ export default function RecorderComponent() {
 
   async function endRecording() {
     await AudioRecorder.stopRecording();
-    Alert.alert(audioFilePath);
     setPlayerState(PLAYERSTATE.STOPPED);
     prepareFileAndUpload();
   }

@@ -61,15 +61,13 @@ export const removeJobInProgress = () => (dispatch) => {
   };
 };
 
-export const uploadNewJob = ({ jobData, audioFileName }) => (dispatch) => {
+export const uploadNewJob = ({ jobData, audixoFileName }) => (dispatch) => {
   const uri = config.SERVER + "/api/jobs";
   console.log("In uploadNewJob", jobData, uri);
   dispatch(setJobLoading());
-  debugger;
   axios
     .post(uri, jobData)
     .then((res) => {
-      debugger;
       console.log("Upload Response", res.data);
       // if (!second) {
       //   throw (Error, { message: "dummy error" });
