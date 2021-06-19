@@ -61,7 +61,7 @@ export const removeJobInProgress = () => (dispatch) => {
   };
 };
 
-export const uploadNewJob = ({ jobData, audixoFileName }) => (dispatch) => {
+export const uploadNewJob = ({ jobData, audioFileName }) => (dispatch) => {
   const uri = config.SERVER + "/api/jobs";
   console.log("In uploadNewJob", jobData, uri);
   dispatch(setJobLoading());
