@@ -7,6 +7,7 @@ import { v4 as uuid } from "uuid";
 import { useDispatch } from "react-redux";
 import { uploadNewJob } from "actions/jobActions";
 import PatientTaskModal from "AsyncRecording/recorder/PatienTaskModal";
+import RecordIcon from "./RecordIcon";
 
 //TODO
 //1. UI wise, how should this look?
@@ -19,7 +20,7 @@ import PatientTaskModal from "AsyncRecording/recorder/PatienTaskModal";
 //4. Some kind of call functionality?
 //5. Delete functionality
 //6. If recording is paused, show player
-//7. Title entered modal?
+//7. Title entered modal? - OK
 
 const PLAYERSTATE = {
   STOPPED: "STOPPED",
@@ -122,29 +123,23 @@ export default function RecorderComponent({ navigation }) {
     }
   }
 
+  let content = <RecordIcon onPress={startRecording} labelText="Record" />;
+
   if (playerState === PLAYERSTATE.RECORDING) {
-    return (
+    content = (
       <View style={styles.buttonView}>
         <Icon size={100} name="stop" color="black" onPress={endRecording} />
-        <Text style={styles.buttonLabelText}>End recording</Text>
+        <Text style={styles.titleText}>End recording</Text>
         <Icon size={100} name="pause" color="white" onPress={pauseRecording} />
-        <Text style={styles.buttonLabelText}>Pause</Text>
+        <Text style={styles.titleText}>Pause</Text>
         <VUMeter decibels={decibels} />
       </View>
     );
   }
 
   if (playerState === PLAYERSTATE.PAUSED) {
-    return (
-      <>
-        <Icon
-          size={100}
-          name="fiber-manual-record"
-          color="red"
-          onPress={resumeRecording}
-        />
-        <Text style={styles.buttonLabelText}>Resume recording</Text>
-      </>
+    content = (
+      <RecordIcon labelText="Resume recording" onPress={resumeRecording} />
     );
   }
 
@@ -160,14 +155,8 @@ export default function RecorderComponent({ navigation }) {
           navigation.navigate("Home");
         }}
       />
-      <Text>{title}</Text>
-      <Icon
-        size={100}
-        name="fiber-manual-record"
-        color="red"
-        onPress={startRecording}
-      />
-      <Text style={styles.buttonLabelText}>Record</Text>
+      <Text style={styles.titleText}>{title}</Text>
+      {content}
     </View>
   );
 }
@@ -178,5 +167,10 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "column",
+  },
+  titleText: {
+    fontSize: 54,
+    fontWeight: "600",
+    color: "#fff",
   },
 };
