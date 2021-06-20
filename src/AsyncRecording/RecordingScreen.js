@@ -16,7 +16,7 @@ const RecordingScreen = ({ navigation, user }) => {
           navigation.navigate("Home");
         }}
       />
-      <RecorderComponent />
+      <RecorderComponent navigation={navigation} />
     </View>
   );
 };

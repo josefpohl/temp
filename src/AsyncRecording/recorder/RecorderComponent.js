@@ -1,26 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { Icon } from "react-native-elements";
 import { AudioRecorder, AudioUtils } from "react-native-audio";
 import VUMeter from "AsyncRecording/VUMeter";
 import { v4 as uuid } from "uuid";
-import { Alert } from "react-native";
 import { useDispatch } from "react-redux";
 import { uploadNewJob } from "actions/jobActions";
+import PatientTaskModal from "AsyncRecording/recorder/PatienTaskModal";
 
 //TODO
-//1. UI wise, how does this look?
+//1. UI wise, how should this look?
 //2. Start recording functionality - OK
-//2.1. Title entered modal?
 //2.2 If playing, render stop button - OK
 //2.3 If playing, render pause button - OK
 //2.4 When paused, render Resume recording button - OK
-//2.5 End recording functionality
-//3. Playback/Pause/Resume/Record functionality
-//4. File upload functionality
-//5. Some kind of call functionality?
-//6. Delete functionality
-//If recording is paused, show player
+//2.5 End recording functionality - OK
+//3. File upload functionality - OK
+//4. Some kind of call functionality?
+//5. Delete functionality
+//6. If recording is paused, show player
+//7. Title entered modal?
 
 const PLAYERSTATE = {
   STOPPED: "STOPPED",
@@ -32,13 +31,14 @@ Object.freeze(PLAYERSTATE);
 
 const fileExtension = ".aac";
 
-export default function RecorderComponent() {
+export default function RecorderComponent({ navigation }) {
   const [playerState, setPlayerState] = useState(PLAYERSTATE.STOPPED);
   const [decibels, setDecibels] = useState(-180);
   const [recordSecondsCounter, setRecordSecondsCounter] = useState(0);
   const [audioFilePath, setAudioFilePath] = useState("");
   const [audioFileBase, setAudioFileBase] = useState("");
-  const [title, setTitle] = useState("TestTitle");
+  const [title, setTitle] = useState("");
+  const [showTitleModal, setShowTitleModal] = useState(true);
   const dispatch = useDispatch();
 
   async function startRecording() {
@@ -47,8 +47,8 @@ export default function RecorderComponent() {
       setAudioFileBase(audioFileBase);
       AudioRecorder.requestAuthorization().then(async () => {
         await prepareRecordingPath(audioFileBase);
-        const filePath = await AudioRecorder.startRecording();
-        console.log("Recording now", filePath);
+        await AudioRecorder.startRecording();
+        console.log("Recording now");
       });
       setPlayerState(PLAYERSTATE.RECORDING);
     } catch (err) {
@@ -66,7 +66,7 @@ export default function RecorderComponent() {
     const jobData = new FormData();
     jobData.append("selectedFile", {
       uri: "file://" + audioFilePath,
-      name: audioFileBase + ".aac",
+      name: audioFileBase + fileExtension,
     });
     jobData.append("lastModified", new Date());
     jobData.append("name", audioFileBase);
@@ -90,7 +90,7 @@ export default function RecorderComponent() {
 
   async function prepareRecordingPath(audioFileBase) {
     const audioFilePath =
-      AudioUtils.DocumentDirectoryPath + "/" + audioFileBase + ".aac";
+      AudioUtils.DocumentDirectoryPath + "/" + audioFileBase + fileExtension;
     setAudioFilePath(audioFilePath);
     await AudioRecorder.prepareRecordingAtPath(audioFilePath, {
       SampleRate: 22050,
@@ -150,6 +150,17 @@ export default function RecorderComponent() {
 
   return (
     <View style={styles.buttonView}>
+      <PatientTaskModal
+        updateTextChange={setTitle}
+        modalVisible={showTitleModal}
+        title={title}
+        closeModal={() => setShowTitleModal(false)}
+        cancelFromModal={() => {
+          setShowTitleModal(false);
+          navigation.navigate("Home");
+        }}
+      />
+      <Text>{title}</Text>
       <Icon
         size={100}
         name="fiber-manual-record"
