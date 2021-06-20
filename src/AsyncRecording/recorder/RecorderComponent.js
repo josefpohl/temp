@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View } from "react-native";
+import { Text, View, Alert } from "react-native";
 import { Icon } from "react-native-elements";
 import { AudioRecorder, AudioUtils } from "react-native-audio";
 import VUMeter from "AsyncRecording/VUMeter";
@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { uploadNewJob } from "actions/jobActions";
 import PatientTaskModal from "AsyncRecording/recorder/PatienTaskModal";
 import RecordIcon from "./RecordIcon";
+import Player from "./Player";
 
 //TODO
 //1. UI wise, how should this look?
@@ -18,8 +19,8 @@ import RecordIcon from "./RecordIcon";
 //2.5 End recording functionality - OK
 //3. File upload functionality - OK
 //4. Some kind of call functionality?
-//5. Delete functionality
-//6. If recording is paused, show player
+//5. Delete functionality - OK
+//6. If recording is paused, show player - OK
 //7. Title entered modal? - OK
 
 const PLAYERSTATE = {
@@ -49,9 +50,9 @@ export default function RecorderComponent({ navigation }) {
       AudioRecorder.requestAuthorization().then(async () => {
         await prepareRecordingPath(audioFileBase);
         await AudioRecorder.startRecording();
+        setPlayerState(PLAYERSTATE.RECORDING);
         console.log("Recording now");
       });
-      setPlayerState(PLAYERSTATE.RECORDING);
     } catch (err) {
       console.error(err);
     }
@@ -123,6 +124,27 @@ export default function RecorderComponent({ navigation }) {
     }
   }
 
+  function deleteAndStartOver() {
+    Alert.alert(
+      "Delete Recording",
+      "Delete and start over!",
+      [
+        {
+          text: "Delete",
+          onPress: async () => {
+            await AudioRecorder.stopRecording();
+            setPlayerState(PLAYERSTATE.STOPPED);
+          },
+        },
+        {
+          text: "Cancel",
+          onPress: () => console.log("Do Nothing... no delete"),
+        },
+      ],
+      { cancelable: true }
+    );
+  }
+
   let content = <RecordIcon onPress={startRecording} labelText="Record" />;
 
   if (playerState === PLAYERSTATE.RECORDING) {
@@ -139,7 +161,19 @@ export default function RecorderComponent({ navigation }) {
 
   if (playerState === PLAYERSTATE.PAUSED) {
     content = (
-      <RecordIcon labelText="Resume recording" onPress={resumeRecording} />
+      <>
+        <Player audioFileName={audioFilePath} />
+        <RecordIcon labelText="Resume recording" onPress={resumeRecording} />
+        <View style={styles.buttonView}>
+          <Icon
+            size={100}
+            name="delete"
+            color="red"
+            onPress={deleteAndStartOver}
+          />
+          <Text style={styles.buttonLabelText}>Delete</Text>
+        </View>
+      </>
     );
   }
 
@@ -170,6 +204,11 @@ const styles = {
   },
   titleText: {
     fontSize: 54,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  buttonLabelText: {
+    fontSize: 24,
     fontWeight: "600",
     color: "#fff",
   },
