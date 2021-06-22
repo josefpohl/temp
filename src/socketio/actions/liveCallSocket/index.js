@@ -13,6 +13,7 @@ import {
 import { emitInLiveCall, onInLiveCall, offInLiveCall } from "./inLiveCall";
 import { onTerminate, offTerminate } from "./terminate";
 import { onCallReject, rejectingCall, offCallReject } from "./reject";
+import { alert, onAlert, offAlert } from "./notify";
 
 export {
   roomConnect,
@@ -23,15 +24,18 @@ export {
   message,
   leaving,
   rejectingCall,
+  alert,
   emitLeftLiveCall,
   onLeaving,
   onRoomConnect,
   onRoomInitiate,
   onLeftLiveCall,
   emitInLiveCall,
+  onSkywriterArrived,
   onTerminate,
   onInLiveCall,
   onCallReject,
+  onAlert,
   offInLiveCall,
   offCallAccept,
   offLeftLiveCall,
@@ -42,5 +46,5 @@ export {
   offSkywriterArrived,
   offTerminate,
   offCallReject,
-  onSkywriterArrived,
+  offAlert,
 };

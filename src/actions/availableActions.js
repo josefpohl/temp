@@ -3,6 +3,8 @@ import {
   LEFT_LIVE_CALL,
   REMOVE_AVAILABLE,
   IN_LIVE_CALL,
+  LOADING_AVAILABILITY,
+  SET_CURRENT_AVAILABLES,
 } from "./actionTypes";
 
 import axios from "axios";
@@ -69,7 +71,9 @@ export const inLiveCall = (user) => async (dispatch) => {
 };
 
 export const getCurrentAvailable = (user) => async (dispatch) => {
-  const uri = config.SERVER + `/api/available/allTeam/${getId(userid)}`;
+  dispatch({ type: LOADING_AVAILABILITY });
+  console.log(`In getCurrentAvailable ${user.name}`);
+  const uri = config.SERVER + `/api/available/allTeam/${getId(user)}`;
   //TODO refine to users who can take calls for this team
   const teamAvailables = await axios
     .get(uri)
@@ -83,15 +87,15 @@ export const getCurrentAvailable = (user) => async (dispatch) => {
     .catch((err) => {
       console.log(`Cannot get availability ${err}`);
     });
-  return teamAvailables;
+  //return teamAvailables;
 
   // dispatch({ type: LOADING_AVAILABILITY }); catch this on HOME screen
   // const teamAvailables = await getTeamAvailables(id);
-  // dispatch({
-  //   type: SET_CURRENT_AVAILABLES,
-  //   payload: teamAvailables,
-  // });
-  // dispatch({ type: LOADING_AVAILABILITY });
+  dispatch({
+    type: SET_CURRENT_AVAILABLES,
+    payload: teamAvailables,
+  });
+  dispatch({ type: LOADING_AVAILABILITY });
 };
 
 function getId(user) {

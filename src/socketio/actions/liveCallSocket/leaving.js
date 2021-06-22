@@ -18,6 +18,7 @@ export const leaving = ({
   roomname,
   terminatedBySender,
   from,
+  error,
 }) => {
   console.log(`Leaving socket emit event`);
   return {

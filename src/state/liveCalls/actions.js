@@ -3,17 +3,23 @@ import {
   SET_SKYWRITER_IN_CALL,
   SET_TOKEN,
   LOADING_SKYWRITER,
-  SAVE_LIVECALL,
+  SAVED_LIVECALL,
   ROOM_INITIATE,
   CALL_ACCEPTED,
-  SEND_MESSAGE,
+  ADD_MESSAGE,
   CALL_ACCEPT,
+  NOTIFY,
   LEAVING,
   SKYWRITER_ARRIVED,
   CALL_CANCELLED,
   TERMINATE_CALL,
   CALL_REJECT,
-  CALL_DISONNECTED,
+  SET_IS_SENDER,
+  CALL_DISCONNECTED,
+  SAVING_LIVECALL,
+  SET_DESCRIPTION,
+  SET_ROOM_INFO,
+  CALL_FINISHED,
 } from "./types";
 import axios from "axios";
 import config from "../../config";
@@ -25,7 +31,7 @@ export const getToken = () => (dispatch) => {
   const uri = SERVERURL + "/api/twilio/token";
   axios.get(uri).then((results) => {
     const { identity, token } = results.data;
-    console.log(`Getting Token ${identity} ${token}`);
+    //console.log(`Getting Token ${identity} ${token}`);
     dispatch({
       type: SET_TOKEN,
       payload: token,
@@ -44,7 +50,7 @@ export const getSkywriter = (user) => (dispatch) => {
   axios
     .get(uri)
     .then((res) => {
-      console.log(`GET SKYWRITER ${JSON.stringify(res.data)}`);
+      //  console.log(`GET SKYWRITER ${JSON.stringify(res.data)}`);
       let skywriter = null;
       if (res.data.length > 0) {
         const skywriters = res.data;
@@ -57,9 +63,6 @@ export const getSkywriter = (user) => (dispatch) => {
         type: SET_SKYWRITER_IN_CALL,
         payload: skywriter,
       });
-      //     ,
-      //   5000
-      // );
       return skywriter;
     })
     .catch((error) => {
@@ -78,8 +81,15 @@ export const roomInitiate = (data) => {
   };
 };
 
+export const setIsSender = ({ isSender }) => {
+  return {
+    type: SET_IS_SENDER,
+    payload: isSender,
+  };
+};
+
 export const addCallAccepted = (data) => {
-  console.log(`CALL ACCEPTED ACTION ${JSON.stringify(data)}`);
+  //console.log(`CALL ACCEPTED ACTION ${JSON.stringify(data)}`);
   return {
     type: CALL_ACCEPTED,
     payload: data,
@@ -87,9 +97,9 @@ export const addCallAccepted = (data) => {
 };
 
 export const addMessage = (data) => {
-  console.log(`MESSAGE RECEIVED ${JSON.stringify(data)}`);
+  //console.log(`MESSAGE RECEIVED ${JSON.stringify(data)}`);
   return {
-    type: SEND_MESSAGE,
+    type: ADD_MESSAGE,
     payload: data,
   };
 };
@@ -102,7 +112,7 @@ export const skywriterArrived = (data) => {
 };
 
 export const leavingCall = (data) => {
-  //console.log(`PARTICIPANT LEAVING ${JSON.stringify(data)}`);
+  // console.log(`PARTICIPANT LEAVING ACTION`); //${JSON.stringify(data)}`);
   return {
     type: LEAVING,
     payload: data,
@@ -114,8 +124,109 @@ export const cancelCall = () => {
     type: CALL_CANCELLED,
   };
 };
-export const saveCall = async () => {
+
+export const notifyProvider = (sender) => {
+  let senderName = null;
+  if (sender.name) {
+    senderName = sender.name;
+    //console.log(`Notify Provider ${JSON.stringify(sender)}`);
+    return {
+      type: NOTIFY,
+      payload: senderName,
+    };
+  }
+};
+
+export const resetNotifyProvider = () => {
+  return {
+    type: NOTIFY,
+    payload: null,
+  };
+};
+
+export const setRoomInformation = (roomInfo) => {
+  return {
+    type: SET_ROOM_INFO,
+    payload: JSON.stringify(roomInfo),
+  };
+};
+
+export const setDescription = (description) => {
+  return {
+    type: SET_DESCRIPTION,
+    payload: description,
+  };
+};
+
+export const saveCall = (jobData, isPreSave = false) => (dispatch) => {
   console.log(`Saving call`);
+  if (!isPreSave) {
+    dispatch({
+      type: SAVING_LIVECALL,
+    });
+  }
+
+  const uri = SERVERURL + `/api/jobs/livecall`;
+  axios
+    .post(uri, jobData)
+    .then((res) => {
+      if (res.status === 200) {
+        console.log(`DATA is SAVED ${res.status} ${JSON.stringify(res.data)}`);
+        dispatch({
+          type: SAVED_LIVECALL,
+        });
+        if (!isPreSave) {
+          console.log(`NOT PRESAVE`);
+          dispatch({
+            type: SAVING_LIVECALL,
+          });
+          dispatch({
+            type: CALL_FINISHED,
+          });
+        }
+      }
+    })
+    .catch((err) => {
+      console.log(`Error saving job ${err}`);
+      if (!isPreSave) {
+        dispatch({
+          type: SAVING_LIVECALL,
+        });
+        dispatch({
+          type: CALL_FINISHED,
+        });
+      }
+    });
+  return new Promise((resolve) => setTimeout(resolve, 2000));
+};
+
+export const updateCall = (jobData) => (dispatch) => {
+  console.log(`Updating call`);
+  dispatch({
+    type: SAVING_LIVECALL,
+  });
+  console.log(`JOB DATA: ${JSON.stringify(jobData)}`);
+  const uri = SERVERURL + `/api/jobs/update/livecall`;
+  axios
+    .post(uri, jobData)
+    .then((res) => {
+      console.log(`DATA is Updated ${JSON.stringify(res.status)}`);
+      dispatch({
+        type: SAVING_LIVECALL,
+      });
+      dispatch({
+        type: CALL_FINISHED,
+      });
+    })
+    .catch((err) => {
+      console.log(`Error on updating job ${err}`);
+      dispatch({
+        type: SAVING_LIVECALL,
+      });
+      dispatch({
+        type: CALL_FINISHED,
+      });
+    });
   return new Promise((resolve) => setTimeout(resolve, 2000));
 };
 
@@ -126,7 +237,7 @@ export const clearLiveCall = () => (dispatch) => {
 };
 
 export const terminateCall = ({ receiver, sender, roomname }) => {
-  console.log(`Redux terminate call action`);
+  //console.log(`Redux terminate call action`);
   return {
     type: TERMINATE_CALL,
     payload: { receiver, sender, roomname },
@@ -134,7 +245,7 @@ export const terminateCall = ({ receiver, sender, roomname }) => {
 };
 
 export const callReject = ({ receiver, sender }) => {
-  console.log(`Call reject action ${receiver.name} ${sender.name}`);
+  //console.log(`Call reject action ${receiver.name} ${sender.name}`);
   return {
     type: CALL_REJECT,
     payload: { receiver, sender },
@@ -142,8 +253,8 @@ export const callReject = ({ receiver, sender }) => {
 };
 
 export const afterCallDisconnect = () => {
-  console.log(`Call disconnected. Continue processing`);
-  return { type: CALL_DISONNECTED };
+  //console.log(`Call disconnected. Continue processing`);
+  return { type: CALL_DISCONNECTED };
 };
 
 function sortByLastCall(a, b) {

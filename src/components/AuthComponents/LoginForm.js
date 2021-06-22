@@ -16,11 +16,13 @@ import { TextInput, IconButton } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import AsyncStorage from "@react-native-community/async-storage";
 import * as Keychain from "react-native-keychain";
+import { color } from "react-native-reanimated";
 
 const LoginForm = (props) => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [biometryType, setBiometryType] = React.useState();
+  const [errorMessage, setErrorMessage] = React.useState("");
 
   React.useEffect(() => {
     AsyncStorage.getItem("lastUser").then((lastUser) => setEmail(lastUser));
@@ -28,6 +30,10 @@ const LoginForm = (props) => {
       setBiometryType(biometryType);
     });
   }, []);
+
+  React.useEffect(() => {
+    setErrorMessage(props.error);
+  }, [props.error]);
 
   const AUTH_OPTIONS = {
     accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
@@ -99,6 +105,9 @@ const LoginForm = (props) => {
               onChangeText={(password) => setPassword(password)}
             />
           </View>
+          <View>
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
           <View style={styles.loginButton}>
             <TouchableOpacity onPress={debounceLogin}>
               <Text style={{ color: "#fff", fontSize: 25 }}>Authenticate</Text>
@@ -124,7 +133,9 @@ const LoginForm = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  return {};
+  return {
+    error: state.auth.error,
+  };
 };
 
 export default connect(mapStateToProps, { loginUser })(LoginForm);
@@ -175,5 +186,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderColor: "#ddd",
     position: "relative",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 25,
   },
 });

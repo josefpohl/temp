@@ -32,7 +32,7 @@ export const onInLiveCall = () => (dispatch, getState) => {
       (p) => p.user?._id === getId(e.senderUser)
     );
     if (foundReceiverProfile) {
-      console.log(`${JSON.stringify(e)}`);
+      //  console.log(`${JSON.stringify(e)}`);
       dispatch(inLiveCall(e.receiverUser));
     }
     if (foundSenderProfile) {

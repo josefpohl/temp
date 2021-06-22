@@ -25,14 +25,15 @@ export const callAccept = (liveCallData) => {
 export const onCallAccept = () => (dispatch) => {
   console.log(`Incoming Call Accepted`);
 
-  const onCallAccept = (e) => {
+  const onCallAccepted = (e) => {
+    console.log(`Call ACCEPT RECEIVED ${JSON.stringify(e)}`);
     dispatch(addCallAccepted(e));
   };
 
   dispatch({
     type: "socket",
     types: [ON_CALL_ACCEPT, ON_CALL_ACCEPT_SUCCESS, ON_CALL_ACCEPT_FAIL],
-    promise: (socket) => socket.on(CALL_ACCEPT, onCallAccept),
+    promise: (socket) => socket.on(CALL_ACCEPT, onCallAccepted),
   });
 };
 

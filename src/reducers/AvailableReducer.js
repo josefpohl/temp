@@ -1,6 +1,6 @@
 import {
   ADD_AVAILABLE,
-  LOADING_AVAILABLES,
+  LOADING_AVAILABILITY,
   SET_CURRENT_AVAILABLES,
   REMOVE_AVAILABLE,
   LEFT_LIVE_CALL,
@@ -14,15 +14,29 @@ const initial_state = {
 
 export default (state = initial_state, action) => {
   switch (action.type) {
-    case LOADING_AVAILABLES:
+    case LOADING_AVAILABILITY:
+      console.log(`LOADING_AVAILABILITY: `);
       return { ...state, loadingAvailables: !state.loadingAvailables };
     case SET_CURRENT_AVAILABLES:
+      console.log(`SET CURRENT AVAILABLES ${JSON.stringify(action.payload)}`);
       return { ...state, allAvailables: action.payload };
     case ADD_AVAILABLE:
-      let newAvailables = [...state.allAvailables, action.payload.available];
+      console.log(`ADD_AVAILABLE ${JSON.stringify(action.payload.name)}`);
+      const addId = getId(action.payload);
+      let indexToAdd = state.allAvailables.findIndex(
+        (a) => getId(a.userLoggedIn) === addId
+      );
+      let newAvailablesAdd = [];
+      if (indexToAdd >= 0) {
+        // person in there
+        let newAvailablesAdd = state.allAvailables;
+        newAvailablesAdd.splice(index, 1, action.payload.available);
+      } else {
+        newAvailablesAdd = [...state.allAvailables, action.payload.available];
+      }
       return {
         ...state,
-        allAvailables: newAvailables,
+        allAvailables: newAvailablesAdd,
         updatingAvailables: true,
       };
     case REMOVE_AVAILABLE:

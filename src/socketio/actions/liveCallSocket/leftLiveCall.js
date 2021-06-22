@@ -12,12 +12,23 @@ import {
 
 import { leftLiveCall } from "../../../actions/availableActions";
 
-export const emitLeftLiveCall = ({ data }) => {
+export const emitLeftLiveCall = ({
+  receiver,
+  sender,
+  roomname,
+  terminatedBySender,
+}) => {
   console.log(`LEFT_LIVE_CALL socket emit event`);
   return {
     type: "socket",
     types: [LEFT_LIVE_CALL, LEFT_LIVE_CALL_SUCCESS, LEFT_LIVE_CALL_FAIL],
-    promise: (socket) => socket.emit(LEFT_LIVE_CALL, { data }),
+    promise: (socket) =>
+      socket.emit(LEFT_LIVE_CALL, {
+        receiver,
+        sender,
+        roomname,
+        terminatedBySender,
+      }),
   };
 };
 
@@ -34,7 +45,7 @@ export const onLeftLiveCall = () => (dispatch, getState) => {
       (p) => p.user?._id === getId(e.senderUser)
     );
     if (foundReceiverProfile) {
-      console.log(`${JSON.stringify(e)}`);
+      // console.log(`${JSON.stringify(e)}`);
       dispatch(leftLiveCall(e.receiverUser));
     }
     if (foundSenderProfile) {

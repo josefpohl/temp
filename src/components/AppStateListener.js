@@ -8,6 +8,7 @@ import {
 } from "../socketio/actions/userConnected";
 import { onUserDisconnected } from "../socketio/actions/userDisconnected";
 import { disconnect, connect } from "../socketio/actions/connect";
+import { getCurrentAvailable } from "../actions/availableActions";
 import {
   onCallAccept,
   onMessage,
@@ -18,6 +19,7 @@ import {
   onInLiveCall,
   onTerminate,
   onCallReject,
+  onAlert,
 } from "../socketio/actions/liveCallSocket";
 export default function AppStateListener() {
   const dispatch = useDispatch();
@@ -27,7 +29,7 @@ export default function AppStateListener() {
 
   useEffect(() => {
     AppState.addEventListener("change", _handleAppStateChange);
-
+    dispatch(connect());
     return () => {
       AppState.removeEventListener("change", _handleAppStateChange);
     };
@@ -40,12 +42,12 @@ export default function AppStateListener() {
     ) {
       dispatch(connect());
       console.log("App has come to the foreground!");
-      dispatch(onUserConnected());
       console.log(authState);
       AsyncStorage.getItem("user").then((user) => {
         if (user) {
           dispatch(userConnected(JSON.parse(user)));
           //re-initialize all other events...
+          dispatch(onUserConnected());
           dispatch(onUserDisconnected());
           dispatch(onRoomInitiate());
           dispatch(onCallAccept());
@@ -56,6 +58,9 @@ export default function AppStateListener() {
           dispatch(onInLiveCall());
           dispatch(onTerminate());
           dispatch(onCallReject());
+          dispatch(onAlert());
+          console.log(`GET CURRENT AVAILABLES for ${user}`);
+          dispatch(getCurrentAvailable(JSON.parse(user)));
         }
       });
     }

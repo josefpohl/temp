@@ -1,6 +1,7 @@
 import React from "react";
 import { View, StyleSheet, Button, Text } from "react-native";
 import { connect } from "react-redux";
+import moment from "moment";
 import LiveCallSplashScreen from "./LiveCallSplashScreen";
 import LiveCallInProgress from "./LiveCallInProgress";
 import {
@@ -8,9 +9,15 @@ import {
   getToken,
   clearLiveCall,
   saveCall,
+  setDescription,
+  updateCall,
 } from "../../state/liveCalls";
 
-import { roomConnect } from "../../socketio/actions/liveCallSocket";
+import {
+  roomConnect,
+  emitLeftLiveCall,
+} from "../../socketio/actions/liveCallSocket";
+import Toast from "react-native-toast-message";
 
 const LiveCallScreen = ({
   navigation,
@@ -23,12 +30,35 @@ const LiveCallScreen = ({
   token,
   leavingCall,
   clearLiveCall,
+  emitLeftLiveCall,
+  livecalls,
+  saveCall,
+  updateCall,
+  callFinished,
+  route,
+  setDescription,
 }) => {
   let [initialize, setInitialize] = React.useState("Loading");
 
   const [canjoin, setCanjoin] = React.useState(false);
   const [joining, setJoining] = React.useState(false);
 
+  const makeSaveCall = () => {
+    let jobData = {};
+    jobData.description = livecalls.description;
+    jobData.skywriter = skywriter.userLoggedIn._id
+      ? skywriter.userLoggedIn._id
+      : skywriter.id;
+    jobData.provider = user._id ? user._id : user.id;
+    jobData.roomInfo = livecalls.roomInfo;
+    jobData.lastModified = new Date().toISOString();
+    if (livecalls.savedLiveCall) {
+      updateCall(jobData);
+    } else {
+      saveCall(jobData); //.then(() => {
+    }
+    console.log(`SAVING CALL`);
+  };
   React.useEffect(() => {
     // get skywriter,
     // get token,
@@ -37,7 +67,10 @@ const LiveCallScreen = ({
     if (!joining) {
       getToken();
       getSkywriter(user);
-      setInitialize("Connecting");
+      setDescription(
+        "Live call session at " + moment().format("M/D/YYYY [at] h:mm:ss")
+      );
+      setInitialize(`Connecting`);
     }
   }, []);
 
@@ -58,21 +91,38 @@ const LiveCallScreen = ({
 
       setJoining(true); //Update on RoomInitiate
     }
-    return setCanjoin(false);
+    //return () => setCanjoin(false);
   }, [canjoin]);
 
   React.useEffect(() => {
-    console.log("LEAVING CALL");
+    console.log(`LEAVING CALL invoked`);
     if (leavingCall) {
+      console.log(`LEAVING CALL ${JSON.stringify(user.name)}`);
       setJoining(false);
       setInitialize("Leaving Call");
-      saveCall().then(() => {
-        console.log("SAVING CALL USE EFFECT");
-        clearLiveCall();
-        setTimeout(() => navigation.pop(), 2000);
+      emitLeftLiveCall({
+        sender: user,
+        receiver: livecalls.skywriter.userLoggedIn,
+        roomname: livecalls.roomname,
+        terminatedBySender: livecalls.isSender,
       });
+
+      makeSaveCall();
     }
   }, [leavingCall]);
+
+  React.useEffect(() => {
+    if (callFinished) {
+      console.log(`FINISHING CALL invoked`);
+
+      //  setTimeout(() => {
+      console.log(`FINISHING CALL`);
+      clearLiveCall();
+      navigation.pop();
+      //}, 1000);
+    }
+  }, [callFinished]);
+
   return joining ? (
     <LiveCallInProgress
       token={token}
@@ -89,6 +139,9 @@ const mapStateToProps = (state) => ({
   skywriter: state.livecalls.skywriter,
   token: state.livecalls.token,
   leavingCall: state.livecalls.leavingCall,
+  livecalls: state.livecalls,
+  savingCallInProgress: state.livecalls.savingCallInProgress,
+  callFinished: state.livecalls.callFinished,
 });
 
 export default connect(mapStateToProps, {
@@ -96,6 +149,10 @@ export default connect(mapStateToProps, {
   getToken,
   getSkywriter,
   clearLiveCall,
+  emitLeftLiveCall,
+  setDescription,
+  saveCall,
+  updateCall,
 })(LiveCallScreen);
 const styles = StyleSheet.create({
   homeContainer: {

@@ -5,14 +5,14 @@ import { Button } from "react-native-paper";
 import { logoutUser } from "../../actions/authenticationActions";
 import { debounce } from "lodash";
 import Toast from "react-native-toast-message";
-import AppStateListener from "../AppStateListener";
-
+import Loading from "../common/Loading";
 const HomeScreen = ({
   navigation,
   user,
   profiles,
   availables,
   allAvailables,
+  loadingAvailables,
   jobs,
   logoutUser,
 }) => {
@@ -25,7 +25,7 @@ const HomeScreen = ({
   }, [allAvailables]);
   const liveDebounce = React.useCallback(
     debounce(() => {
-      navigation.navigate("LiveCall");
+      navigation.navigate("LiveCall", { isSender: true });
     }, 500),
     []
   );
@@ -51,7 +51,9 @@ const HomeScreen = ({
     });
   };
 
-  return (
+  return loadingAvailables ? (
+    <Loading />
+  ) : (
     <View style={styles.homeContainer}>
       <Text>Hello Home View Screen {user.name}</Text>
       <View style={styles.buttonContainer}>
@@ -95,6 +97,7 @@ const HomeScreen = ({
         <Text style={styles.dataElements}>
           Job count: {jobs.allJobs.length}
         </Text>
+        <Text style={styles.dataElements}>Version: 4.0.9 (12)</Text>
       </View>
       <View style={{ marginBottom: 20 }}>
         <Button
@@ -115,6 +118,7 @@ const mapStateToProps = (state) => ({
   profiles: state.profiles,
   availables: state.availables,
   allAvailables: state.availables.allAvailables,
+  loadingAvailables: state.availables.loadingAvailables,
   jobs: state.jobs,
 });
 

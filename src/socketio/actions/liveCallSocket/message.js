@@ -12,11 +12,13 @@ import {
 
 import { addMessage } from "../../../state/liveCalls";
 
-export const message = (data) => {
+export const message = ({ sender, receiver, message }) => {
+  console.log(`IN EMIT MESSAGE: ${message}`);
   return {
     type: "socket",
     types: [SEND_MESSAGE, SEND_MESSAGE_SUCCESS, SEND_MESSAGE_FAIL],
-    promis: (socket) => socket.emit(SEND_MESSAGE, data),
+    promise: (socket) =>
+      socket.emit(SEND_MESSAGE, { sender, receiver, message }),
   };
 };
 

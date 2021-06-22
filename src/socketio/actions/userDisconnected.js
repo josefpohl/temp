@@ -13,7 +13,7 @@ import {
 import { removeAvailable } from "../../actions/availableActions";
 
 export function userDisconnected(user) {
-  console.log("userConnected function", user);
+  console.log("userDisconnected function", user);
   return {
     type: "socket",
     types: [

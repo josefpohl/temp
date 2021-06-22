@@ -7,6 +7,7 @@ import {
   USER_LOADING,
   USER_LOADING_COMPLETE,
   LOGIN_USER_SUCCESS,
+  LOGIN_USER_FAIL,
   EMAIL_CHANGED,
   PASSWORD_CHANGED,
   LOADING_TEAM_PROFILES,
@@ -35,6 +36,7 @@ import {
   onInLiveCall,
   onTerminate,
   onCallReject,
+  onAlert,
   offCallAccept,
   offInLiveCall,
   offLeaving,
@@ -45,6 +47,7 @@ import {
   offSkywriterArrived,
   offTerminate,
   offCallReject,
+  offAlert,
 } from "../socketio/actions/liveCallSocket";
 import {
   onUserDisconnected,
@@ -72,7 +75,7 @@ export const passwordChanged = (text) => {
 export const loginUser = (emailIn, passwordIn) => (dispatch) => {
   console.log(`EMAIL and PASSWORD: ${emailIn} ${passwordIn}`);
   //DISPATCH CHECKING FOR TOKEN...
-  dispatch(connect());
+  //dispatch(connect());
   dispatch(onUserConnected());
   dispatch(onUserDisconnected());
   //TODO move this list of calls elsewhere????
@@ -85,13 +88,16 @@ export const loginUser = (emailIn, passwordIn) => (dispatch) => {
   dispatch(onInLiveCall());
   dispatch(onTerminate());
   dispatch(onCallReject());
-  dispatch({ type: USER_LOADING });
+  dispatch(onAlert());
+
   const email = emailIn; //"doc5@users.com";
   const password = passwordIn; //"Password1@";
   const uri = config.SERVER + "/api/users/login";
   axios
     .post(uri, { email, password }, { timeout: 5000 })
     .then((res) => {
+      dispatch({ type: USER_LOADING });
+      dispatch({ type: LOGIN_USER_FAIL, payload: null });
       const { token } = res.data;
       AsyncStorage.setItem("jwtToken", token);
       AsyncStorage.setItem("lastUser", email);
@@ -146,6 +152,11 @@ export const loginUser = (emailIn, passwordIn) => (dispatch) => {
       //TODO Present Error and issue correction guidance
       //TODO Network detection?
       console.log(`Error on login ${error}`);
+      let content = { user: false };
+      dispatch({
+        type: LOGIN_USER_FAIL,
+        payload: content,
+      });
     });
 };
 
