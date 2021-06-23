@@ -20,6 +20,7 @@ import {
   onTerminate,
   onCallReject,
   onAlert,
+  onRoomConnect,
 } from "../socketio/actions/liveCallSocket";
 export default function AppStateListener() {
   const dispatch = useDispatch();
@@ -59,6 +60,7 @@ export default function AppStateListener() {
           dispatch(onTerminate());
           dispatch(onCallReject());
           dispatch(onAlert());
+          dispatch(onRoomConnect());
           console.log(`GET CURRENT AVAILABLES for ${user}`);
           dispatch(getCurrentAvailable(JSON.parse(user)));
         }

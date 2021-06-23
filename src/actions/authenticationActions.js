@@ -48,6 +48,8 @@ import {
   offTerminate,
   offCallReject,
   offAlert,
+  onRoomConnect,
+  offRoomConnect,
 } from "../socketio/actions/liveCallSocket";
 import {
   onUserDisconnected,
@@ -89,6 +91,7 @@ export const loginUser = (emailIn, passwordIn) => (dispatch) => {
   dispatch(onTerminate());
   dispatch(onCallReject());
   dispatch(onAlert());
+  dispatch(onRoomConnect());
 
   const email = emailIn; //"doc5@users.com";
   const password = passwordIn; //"Password1@";
@@ -169,7 +172,6 @@ const getProfiles = async (userid) => {
   const myProfile = profiles.find((p) => p.user._id === userid);
   //TODO Refine search to team roles rather than user roles
   const teamProfiles = profiles.filter((p) => p.user.role === "skywriter");
-
   return { myProfile, teamProfiles };
 };
 
@@ -187,7 +189,7 @@ const setAvailable = async (decodedToken) => {
 
 //Supporting login action
 const getTeamAvailables = async (userid) => {
-  const uri = config.SERVER + `/api/available/allTeam/${userid}`;
+  const uri = config.SERVER + `/api/available/team/${userid}`;
   //TODO refine to users who can take calls for this team
   const teamAvailables = await axios
     .get(uri)
@@ -219,6 +221,7 @@ export const logoutUser = (user) => (dispatch) => {
   dispatch(offInLiveCall());
   dispatch(offTerminate());
   dispatch(offCallReject());
+  dispatch(offRoomConnect());
   axios
     .post(uri, {}, { timeout: 5000 })
     .then((user) => {

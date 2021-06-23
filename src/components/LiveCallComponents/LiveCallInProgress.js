@@ -1,5 +1,13 @@
 import React from "react";
-import { Text, View, StyleSheet, Dimensions } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Dimensions,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import { Button, Modal, Portal } from "react-native-paper";
 import { connect } from "react-redux";
 import Toast from "react-native-toast-message";
@@ -67,7 +75,6 @@ const LiveCallInProgress = ({
   const [showScreenShare, setShowScreenShare] = React.useState(false);
   const [saveable, setSaveable] = React.useState(false);
   const [saved, setSaved] = React.useState(false);
-  console.log(`LiveCallInProgress invoked...`);
   React.useEffect(() => {
     if (skywriter && roomname && callAccepted) {
       setCanCancel(false);
@@ -304,77 +311,86 @@ const LiveCallInProgress = ({
     setShowScreenShare(!showScreenShare);
   };
   return (
-    <View style={styles.splashContatiner}>
-      <Text>In with {skywriter.userLoggedIn.name}</Text>
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        {/*<View>
-          <Chat skywriter={skywriter} />
-        </View> */}
-        <View style={styles.buttonContainer}>
-          {canCancel ? cancelButton : endCallButton}
-          {canCancel ? null : alertButton}
-          {canCancel ? null : muteButton}
-          {canCancel ? null : screenShare ? screenShareButton : null}
-        </View>
-      </View>
-      <Text>Welcome to the call...</Text>
-      <TwilioVideoLocalView enabled={true} />
-
-      {Array.from(videoTracks, ([trackSid, trackIdentifier]) => {
-        return (
-          <View key={trackSid}>
-            <Portal>
-              <Modal
-                visible={showScreenShare}
-                onDismiss={() => setShowScreenShare(false)}
-                contentContainerStyle={styles.modalContainerStyle}
-              >
-                <View
-                  key={trackSid}
-                  style={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <View style={styles.modalHeader}>
-                    <Button
-                      raised
-                      mode="contained"
-                      theme={{ roundness: 3 }}
-                      onPress={() => setShowScreenShare(false)}
-                    >
-                      <Text style={styles.dataElements}>Hide Screen </Text>
-                    </Button>
-                  </View>
-                  <View>
-                    <TwilioVideoParticipantView
-                      style={styles.remoteVideo}
-                      scaleType={"fit"}
-                      key={trackSid}
-                      trackIdentifier={trackIdentifier}
-                      enabled={true}
-                    />
-                  </View>
-                </View>
-              </Modal>
-            </Portal>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={"padding"}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.mainContatiner}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.headerTextStyle}>
+              In Live Call with {skywriter.userLoggedIn.name}
+            </Text>
           </View>
-        );
-      })}
+          <View style={styles.contentContainer}>
+            {canCancel ? null : (
+              <View style={styles.chatContainer}>
+                <Chat skywriter={skywriter} />
+              </View>
+            )}
+            <View style={styles.buttonContainer}>
+              {canCancel ? cancelButton : endCallButton}
+              {canCancel ? null : alertButton}
+              {canCancel ? null : muteButton}
+              {canCancel ? null : screenShare ? screenShareButton : null}
+            </View>
+          </View>
+          <TwilioVideoLocalView enabled={true} />
 
-      <TwilioVideo
-        ref={twilioRef}
-        autoInitializeCamera={false}
-        onRoomDidConnect={_onRoomDidConnect}
-        onRoomDidDisconnect={_onRoomDidDisconnect}
-        onRoomDidFailToConnect={_onRoomDidFailToConnect}
-        onParticipantAddedAudioTrack={_onParticipantAddedAudioTrack}
-        onParticipantDisabledAudioTrack={_onParticipantDisabledAudioTrack}
-        onParticipantRemovedAudioTrack={_onParticipantRemovedAudioTrack}
-        onParticipantAddedVideoTrack={_onParticipantAddedVideoTrack}
-        onParticipantRemovedVideoTrack={_onParticipantRemovedVideoTrack}
-      />
-    </View>
+          {Array.from(videoTracks, ([trackSid, trackIdentifier]) => {
+            return (
+              <View key={trackSid}>
+                <Portal>
+                  <Modal
+                    visible={showScreenShare}
+                    onDismiss={() => setShowScreenShare(false)}
+                    contentContainerStyle={styles.modalContainerStyle}
+                  >
+                    <View
+                      key={trackSid}
+                      style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <View style={styles.modalHeader}>
+                        <Button
+                          raised
+                          mode="contained"
+                          theme={{ roundness: 3 }}
+                          onPress={() => setShowScreenShare(false)}
+                        >
+                          <Text style={styles.dataElements}>Hide Screen </Text>
+                        </Button>
+                      </View>
+                      <View>
+                        <TwilioVideoParticipantView
+                          style={styles.remoteVideo}
+                          scaleType={"fit"}
+                          key={trackSid}
+                          trackIdentifier={trackIdentifier}
+                          enabled={true}
+                        />
+                      </View>
+                    </View>
+                  </Modal>
+                </Portal>
+              </View>
+            );
+          })}
+
+          <TwilioVideo
+            ref={twilioRef}
+            autoInitializeCamera={false}
+            onRoomDidConnect={_onRoomDidConnect}
+            onRoomDidDisconnect={_onRoomDidDisconnect}
+            onRoomDidFailToConnect={_onRoomDidFailToConnect}
+            onParticipantAddedAudioTrack={_onParticipantAddedAudioTrack}
+            onParticipantDisabledAudioTrack={_onParticipantDisabledAudioTrack}
+            onParticipantRemovedAudioTrack={_onParticipantRemovedAudioTrack}
+            onParticipantAddedVideoTrack={_onParticipantAddedVideoTrack}
+            onParticipantRemovedVideoTrack={_onParticipantRemovedVideoTrack}
+          />
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 //autoInitializeCamera={false}
@@ -405,11 +421,20 @@ export default connect(mapStateToProps, {
   setRoomInformation,
 })(LiveCallInProgress);
 const styles = StyleSheet.create({
-  splashContatiner: {
+  mainContatiner: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    alignSelf: "stretch",
     backgroundColor: "#b3b3b3",
+  },
+  contentContainer: {
+    flexDirection: "row",
+    flex: 8,
+  },
+  chatContainer: {
+    flex: 1,
+    backgroundColor: "#999",
   },
   dataElements: {
     fontSize: 20,
@@ -434,5 +459,23 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     margin: 10,
+  },
+  headerTextStyle: {
+    fontSize: 36,
+    fontWeight: "bold",
+
+    color: "black",
+  },
+  callContainer: {
+    flex: 1,
+    marginTop: 50,
+    flexDirection: "column",
+    alignSelf: "stretch",
+  },
+  buttonContainer: {
+    flex: 3,
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    flexDirection: "row",
   },
 });

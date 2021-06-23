@@ -22,8 +22,8 @@ export const CALL_REJECT = "CALL_REJECT";
 export const TERMINATE_CALL = "TERMINATE_CALL";
 export const NOTIFY = "NOTIFY";
 export const ADD_MESSAGE = "ADD_MESSAGE";
-export const ROOM_CONNECT = "ROOM_CONNECT";
-
+export const INCOMING_ROOM_CONNECT = "INCOMING_ROOM_CONNECT";
+export const INCOMING_ROOM_INITIATE = "INCOMING_ROOM_INITIATE";
 // These are more available context
 export const IN_LIVE_CALL = "IN_LIVE_CALL";
 export const LEFT_LIVE_CALL = "LEFT_LIVE_CALL";

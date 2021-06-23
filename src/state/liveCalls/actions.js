@@ -20,6 +20,8 @@ import {
   SET_DESCRIPTION,
   SET_ROOM_INFO,
   CALL_FINISHED,
+  INCOMING_ROOM_CONNECT,
+  INCOMING_ROOM_INITIATE,
 } from "./types";
 import axios from "axios";
 import config from "../../config";
@@ -31,7 +33,7 @@ export const getToken = () => (dispatch) => {
   const uri = SERVERURL + "/api/twilio/token";
   axios.get(uri).then((results) => {
     const { identity, token } = results.data;
-    //console.log(`Getting Token ${identity} ${token}`);
+    console.log(`Getting Token ${identity} ${token}`);
     dispatch({
       type: SET_TOKEN,
       payload: token,
@@ -73,6 +75,15 @@ export const getSkywriter = (user) => (dispatch) => {
     });
 };
 
+export const makeRoomConnect = (data) => (dispatch) => {
+  console.log(`Make Room Connection ${JSON.stringify(data)}`);
+  const { roomname, receiver, sender } = data;
+  //INCOMING_ROOM_CONNECT
+  dispatch({
+    type: INCOMING_ROOM_CONNECT,
+    payload: { roomname, skywriter: sender.available },
+  });
+};
 export const roomInitiate = (data) => {
   console.log(`ROOM_INITIATE_ACTION ${data.roomname}`);
   return {
@@ -81,6 +92,12 @@ export const roomInitiate = (data) => {
   };
 };
 
+export const initiateIncomingJoin = () => {
+  console.log(`INCOMING ROOM_INITIATE `);
+  return {
+    type: INCOMING_ROOM_INITIATE,
+  };
+};
 export const setIsSender = ({ isSender }) => {
   return {
     type: SET_IS_SENDER,

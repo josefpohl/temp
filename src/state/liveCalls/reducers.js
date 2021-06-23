@@ -21,6 +21,8 @@ import {
   SET_DESCRIPTION,
   CAN_PRE_SAVE,
   CALL_FINISHED,
+  INCOMING_ROOM_CONNECT,
+  INCOMING_ROOM_INITIATE,
 } from "./types";
 
 const initial_state = {
@@ -45,6 +47,7 @@ const initial_state = {
   description: "",
   canPreSave: false,
   callFinished: false,
+  incomingCall: false,
   messages: [],
 };
 
@@ -76,7 +79,7 @@ export default (state = initial_state, action) => {
     case LEAVING:
       return { ...state, callWillEnd: true };
     case CLEAR_LIVE_CALL:
-      return { ...state, ...initial_state };
+      return { ...initial_state };
     case SAVED_LIVECALL:
       return { ...state, savedLiveCall: true };
     case SAVING_LIVECALL:
@@ -112,6 +115,20 @@ export default (state = initial_state, action) => {
         preSave = true;
       }
       return { ...state, roomInfo: action.payload, canPreSave: preSave };
+    case INCOMING_ROOM_CONNECT:
+      console.log(
+        `INCOMING_ROOM_CONNECT Reducer IncomingCall STATE${state.incomingCall}`
+      );
+      const { roomname, skywriter } = action.payload;
+      return {
+        ...state,
+        incomingCall: true,
+        skywriter: skywriter,
+        roomname: roomname,
+        callAccepted: true,
+      };
+    case INCOMING_ROOM_INITIATE:
+      return { ...state, canJoinRoom: true };
     default:
       return state;
   }

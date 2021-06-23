@@ -22,9 +22,10 @@ export default (state = initial_state, action) => {
     case LOGIN_USER_SUCCESS:
       return { ...state, isAuthenticated: true, user: action.payload };
     case LOGIN_USER_FAIL:
+      console.log(`LOGIN_USER_FAIL ${JSON.stringify(action.payload)}`);
       const message = !action.payload
         ? ""
-        : action.payload.user
+        : !action.payload.user
         ? "Login failure. Please check your user name and password."
         : "Please check the network access";
       return { ...state, isAuthenticated: false, error: message };

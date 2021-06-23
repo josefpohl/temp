@@ -18,7 +18,7 @@ export default (state = initial_state, action) => {
       console.log(`LOADING_AVAILABILITY: `);
       return { ...state, loadingAvailables: !state.loadingAvailables };
     case SET_CURRENT_AVAILABLES:
-      console.log(`SET CURRENT AVAILABLES ${JSON.stringify(action.payload)}`);
+      //console.log(`SET CURRENT AVAILABLES ${JSON.stringify(action.payload)}`);
       return { ...state, allAvailables: action.payload };
     case ADD_AVAILABLE:
       console.log(`ADD_AVAILABLE ${JSON.stringify(action.payload.name)}`);
@@ -52,7 +52,7 @@ export default (state = initial_state, action) => {
         allAvailables: [...newAvailablesDisco],
       };
     case LEFT_LIVE_CALL:
-      console.log(`Available LEFT Reducer ${JSON.stringify(action.payload)}`);
+      //console.log(`Available LEFT Reducer ${JSON.stringify(action.payload)}`);
       if (action.payload === null || action.payload?.role !== "skywriter")
         return state;
       const idLLC = getId(action.payload);
@@ -69,7 +69,7 @@ export default (state = initial_state, action) => {
         allAvailables: [...newAvailablesLLC],
       };
     case IN_LIVE_CALL:
-      console.log(`Available IN Reducer ${JSON.stringify(action.payload)}`);
+      //console.log(`Available IN Reducer ${JSON.stringify(action.payload)}`);
       if (action.payload === null || action.payload?.role !== "skywriter")
         return state;
       const idILC = getId(action.payload);

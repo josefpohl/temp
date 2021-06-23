@@ -13,7 +13,7 @@ import {
 import { addCallAccepted } from "../../../state/liveCalls";
 
 export const callAccept = (liveCallData) => {
-  console.log(`Call Accepted ${JSON.stringify(liveCallData)}`);
+  //console.log(`Call Accepted ${JSON.stringify(liveCallData)}`);
 
   return {
     type: "socket",

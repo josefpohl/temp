@@ -17,6 +17,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import AsyncStorage from "@react-native-community/async-storage";
 import * as Keychain from "react-native-keychain";
 import { color } from "react-native-reanimated";
+import Toast from "react-native-toast-message";
 
 const LoginForm = (props) => {
   const [email, setEmail] = React.useState("");
@@ -26,8 +27,9 @@ const LoginForm = (props) => {
 
   React.useEffect(() => {
     AsyncStorage.getItem("lastUser").then((lastUser) => setEmail(lastUser));
-    Keychain.getSupportedBiometryType().then((biometryType) => {
-      setBiometryType(biometryType);
+    Keychain.getSupportedBiometryType().then((biometryType2) => {
+      setBiometryType(biometryType2);
+      console.log(`BIOMETRY TYPE: ${biometryType2}`);
     });
   }, []);
 
@@ -45,7 +47,13 @@ const LoginForm = (props) => {
 
   const debounceLogin = React.useCallback(
     _.debounce(async () => {
-      console.log(`FROM FORM:  ${email}, ${password}`);
+      if (password.length < 8) {
+        Toast.show({
+          text1: "Password Invalid",
+          text2: "Your password does not meet the minimum criteria",
+        });
+        return;
+      }
       await Keychain.setGenericPassword(email, password, AUTH_OPTIONS).then(
         (result) => {
           console.log(
@@ -62,11 +70,12 @@ const LoginForm = (props) => {
     const credentials = await Keychain.getGenericPassword();
     if (credentials) {
       const { username, password } = credentials;
-      console.log(`credentials from Keychain: ${JSON.stringify(credentials)}`);
       props.loginUser(username, password);
     } else {
-      console.log("No credentials stored. Alert via toast");
-      alert("No credentials stored.  Please log in once to cache them.");
+      Toast.show({
+        text1: "No credentials stored.",
+        text2: "Please log in once to cache them.",
+      });
     }
   };
 
@@ -91,7 +100,6 @@ const LoginForm = (props) => {
               label="email"
               value={email}
               onChangeText={(email) => {
-                console.log(`email: ${email}`);
                 setEmail(email.toLowerCase());
               }}
             />
@@ -122,7 +130,10 @@ const LoginForm = (props) => {
               size={75}
             >
               <Text style={{ color: "#fff", fontSize: 25 }}>
-                Login with thumbprint
+                Login with
+                {biometryType === Keychain.BIOMETRY_TYPE.FACE_ID
+                  ? " Face ID"
+                  : " Touch ID"}
               </Text>
             </Icon.Button>
           </View>

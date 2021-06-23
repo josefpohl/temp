@@ -1,12 +1,23 @@
 import React from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { Button } from "react-native-paper";
+import { ActivityIndicator, Colors } from "react-native-paper";
 
-const LiveCallSplashScreen = ({ text, user, skywriter, roomname }) => {
+const LiveCallSplashScreen = ({
+  text,
+  headerText,
+  user,
+  skywriter,
+  roomname,
+}) => {
   return (
     <View style={styles.splashContatiner}>
-      <Text>Initiating your call with a Skywriter</Text>
-      <Text> {text}</Text>
+      <Text style={styles.header}>{headerText}</Text>
+      <Text style={styles.subtext}> {text}</Text>
+      <ActivityIndicator
+        animating={true}
+        colors={Colors.white}
+        size={"large"}
+      />
     </View>
   );
 };
@@ -20,9 +31,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#b3b3b3",
   },
-  dataElements: {
-    fontSize: 20,
+
+  header: {
+    fontSize: 32,
     fontWeight: "bold",
     marginLeft: 25,
+  },
+  subtext: {
+    fontSize: 24,
+    fontWeight: "bold",
   },
 });

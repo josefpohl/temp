@@ -33,12 +33,12 @@ export const removeAvailable = (user) => {
 
 export const leftLiveCall = (user) => async (dispatch) => {
   const URI = config.SERVER + `/api/available/callEnd/${getId(user)}`;
-  console.log(`LEFT LIVE CALL ${JSON.stringify(user)}`);
+  // console.log(`LEFT LIVE CALL ${JSON.stringify(user)}`);
   console.log(URI);
   const avail = await axios
     .get(URI)
     .then((res) => {
-      console.log(`LeftLiveCall available ${JSON.stringify(res.data)}`);
+      //console.log(`LeftLiveCall available ${JSON.stringify(res.data)}`);
       return res.data;
     })
     .catch((err) => {

@@ -18,6 +18,8 @@ import {
   setIsSender,
   setDescription,
   setRoomInformation,
+  makeRoomConnect,
+  initiateIncomingJoin,
 } from "./actions";
 import LiveCallReducer from "./reducers";
 
@@ -41,5 +43,7 @@ export {
   setIsSender,
   setDescription,
   setRoomInformation,
+  makeRoomConnect,
+  initiateIncomingJoin,
   LiveCallReducer,
 };

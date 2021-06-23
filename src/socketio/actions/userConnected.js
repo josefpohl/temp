@@ -24,11 +24,19 @@ export function userConnected(user) {
 export const onUserConnected = () => (dispatch, getState) => {
   console.log("onUserConnected listener exec");
   const onUserConnected = (e) => {
-    console.log(`On USER_CONNECTED: ${e.name}`);
+    const { teamProfiles, userProfile } = getState().profiles;
 
-    const { teamProfiles } = getState().profiles;
     const foundProfile = teamProfiles.find((p) => p.user?._id === e.id);
+    let teamFromSky = null;
     if (foundProfile) {
+      const { teams } = userProfile;
+      if (teams.length > 0) {
+        const teamid = teams[0].teamid;
+
+        teamFromSky = foundProfile.teams.find((p) => p.teamid === teamid);
+      }
+    }
+    if (foundProfile && teamFromSky?.role === "skywriter") {
       dispatch(addAvailable(e));
     } else {
       console.log(`${e.name} addition ignored`);

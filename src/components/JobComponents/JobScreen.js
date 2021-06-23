@@ -6,8 +6,10 @@ const JobScreen = ({ navigation, user, jobs }) => {
   const { allJobs, loadingJobs } = jobs;
   return (
     <View style={styles.homeContainer}>
-      <View>
-        <Text>Job search view goes here {user.name}</Text>
+      <View style={{ paddingTop: 15 }}>
+        <Text style={styles.headerText}>
+          Job search view goes here {user.name}
+        </Text>
       </View>
       <JobList jobs={allJobs} />
       <Button
@@ -32,7 +34,12 @@ const styles = StyleSheet.create({
   homeContainer: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "flex-start",
+    alignItems: "center",
     backgroundColor: "#2e9aa7",
+  },
+  headerText: {
+    color: "#fff",
+    fontSize: 24,
+    alignSelf: "center",
   },
 });
