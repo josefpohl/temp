@@ -10,19 +10,6 @@ import PatientTaskModal from "AsyncRecording/recorder/PatienTaskModal";
 import RecordIcon from "./RecordIcon";
 import Player from "./Player";
 
-//TODO
-//1. UI wise, how should this look?
-//2. Start recording functionality - OK
-//2.2 If playing, render stop button - OK
-//2.3 If playing, render pause button - OK
-//2.4 When paused, render Resume recording button - OK
-//2.5 End recording functionality - OK
-//3. File upload functionality - OK
-//4. Some kind of call functionality?
-//5. Delete functionality - OK
-//6. If recording is paused, show player - OK
-//7. Title entered modal? - OK
-
 const PLAYERSTATE = {
   STOPPED: "STOPPED",
   RECORDING: "RECORDING",
@@ -149,13 +136,26 @@ export default function RecorderComponent({ navigation }) {
 
   if (playerState === PLAYERSTATE.RECORDING) {
     content = (
-      <View style={styles.buttonView}>
-        <Icon size={100} name="stop" color="black" onPress={endRecording} />
-        <Text style={styles.titleText}>End recording</Text>
-        <Icon size={100} name="pause" color="white" onPress={pauseRecording} />
-        <Text style={styles.titleText}>Pause</Text>
-        <VUMeter decibels={decibels} />
-      </View>
+      <>
+        <View style={styles.buttonView}>
+          <VUMeter decibels={decibels} />
+        </View>
+        <View style={styles.controlsView}>
+          <View>
+            <Icon size={100} name="stop" color="red" onPress={endRecording} />
+            <Text style={styles.titleText}>End</Text>
+          </View>
+          <View>
+            <Icon
+              size={100}
+              name="pause"
+              color="white"
+              onPress={pauseRecording}
+            />
+            <Text style={styles.titleText}>Pause</Text>
+          </View>
+        </View>
+      </>
     );
   }
 
@@ -198,9 +198,15 @@ export default function RecorderComponent({ navigation }) {
 const styles = {
   buttonView: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
-    flexDirection: "column",
+  },
+  controlsView: {
+    flex: 1,
+    backgroundColor: "#2B6089",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    width: "100%",
   },
   titleText: {
     fontSize: 54,
