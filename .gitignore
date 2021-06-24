@@ -222,3 +222,7 @@ package-lock.json
 
 # Android memory profiler files
 *.hprof
+
+
+/ios/Pods/
+ios/Pods

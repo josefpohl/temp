@@ -8,7 +8,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "../components/HomeComponents/HomeScreen";
 import OtherScreen from "../components/HomeComponents/OtherScreen";
-import RecordingScreen from "../components/AsynchRecComponents/RecordingScreen";
+import RecordingScreen from "../AsyncRecording/RecordingScreen";
 import JobScreen from "../components/JobComponents/JobScreen";
 import LiveCallScreen from "../components/LiveCallComponents/LiveCallScreen";
 import LoginForm from "../components/AuthComponents/LoginForm";
