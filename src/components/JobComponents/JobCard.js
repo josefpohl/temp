@@ -26,6 +26,8 @@ import {
 } from "react-native-paper";
 import moment from "moment";
 
+import JobPlayer from "./JobPlayer";
+
 const styles = StyleSheet.create({
   cardContainer: {
     flex: 1,
@@ -45,7 +47,11 @@ const styles = StyleSheet.create({
   cardText: {
     color: "#000",
   },
-  containerStyle: { backgroundColor: "white", padding: 20 },
+  containerStyle: {
+    backgroundColor: "#c5c5c5",
+    padding: 20,
+    flex: 1,
+  },
   pendingStatus: {
     height: 15,
     width: 15,
@@ -74,7 +80,7 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     borderRadius: 15 / 2,
   },
-  modalHeader: { fontSize: 25, fontWeight: "bold" },
+  modalHeader: { fontSize: 36, textAlign: "center", fontWeight: "bold" },
   flexDirHeaders: { flexDirection: "row" },
 });
 function JobCard({ job }) {
@@ -129,27 +135,26 @@ function JobCard({ job }) {
           visible={visible}
           onDismiss={hideModal}
           contentContainerStyle={styles.containerStyle}
+          style={{ marginTop: 125, marginBottom: 125 }}
         >
-          <View>
-            <View style={styles.flexDirHeaders}>
-              <View style={stat.icon} />
+          <View style={styles.flexDirHeaders}>
+            <View style={stat.icon} />
+            <Text style={{ fontSize: 24 }}>{stat.status}</Text>
+            <View style={{ marginLeft: 100 }}>
               <Text style={styles.modalHeader}>{job.description}</Text>
             </View>
-            <View>
-              <Text>Player would go here</Text>
-            </View>
-            <View>
-              <Text>
-                Created: {moment(job.createDate).format("MM-DD-YYYY hh:mm:ss")}
-              </Text>
-              <Text>
-                Completed:
-                {job.completedDate
-                  ? moment(job.completedDate).format("MM-DD-YYYY hh:mm:ss")
-                  : "Not Complete"}
-              </Text>
-            </View>
           </View>
+
+          <JobPlayer job={job} />
+          <Text style={{ fontSize: 24 }}>
+            Created: {moment(job.createDate).format("MM-DD-YYYY hh:mm:ss")}
+          </Text>
+          <Text style={{ fontSize: 24 }}>
+            Completed:
+            {job.completedDate
+              ? moment(job.completedDate).format("MM-DD-YYYY hh:mm:ss")
+              : "Not Complete"}
+          </Text>
         </Modal>
       </Portal>
     </Card>

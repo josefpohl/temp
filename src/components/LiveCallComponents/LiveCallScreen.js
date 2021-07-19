@@ -2,6 +2,7 @@ import React from "react";
 import { View, StyleSheet, Button, Text } from "react-native";
 import { connect } from "react-redux";
 import moment from "moment";
+import AsyncStorage from "@react-native-community/async-storage";
 import LiveCallSplashScreen from "./LiveCallSplashScreen";
 import LiveCallInProgress from "./LiveCallInProgress";
 import { getCurrentAvailable } from "../../actions/availableActions";
@@ -68,12 +69,21 @@ const LiveCallScreen = ({
     }
     console.log(`SAVING CALL`);
   };
+
+  React.useEffect(() => {
+    console.log(`Checking join in progress`);
+    if (route.params.joinInProgress) {
+      console.log(`Joining in progress call... ${JSON.stringify(livecalls)}`);
+    }
+  }, []);
+
   React.useEffect(() => {
     // get skywriter,
     // get token,
     // join Room...
     console.log("INITIALIZE");
-    if (!joining) {
+    if (!joining && !route.params.joinInProgress) {
+      AsyncStorage.setItem("InLiveCall", "true");
       getToken();
       incomingCall
         ? console.log(
@@ -104,7 +114,12 @@ const LiveCallScreen = ({
   React.useEffect(() => {
     console.log("CAN JOIN");
     if (canjoin) {
-      if (!incomingCall) {
+      if (route.params.joinInProgress) {
+        console.log(`Auto join call in progress`);
+      } else if (!incomingCall) {
+        console.log(
+          `CALL BEING MADE LIVE CALL SCREEN: callAccepted ${livecalls.callAccepted} , Sky Arrived ${livecalls.skywriterHasArrived}`
+        );
         roomConnect(user, skywriter.userLoggedIn);
       } else {
         console.log("NEED TO JOIN ROOM AND ACCEPT");
@@ -115,6 +130,14 @@ const LiveCallScreen = ({
       }
 
       setJoining(true); //Update on RoomInitiate
+      if (route.params.joinInProgress) {
+        console.log(`After set joining to true ${JSON.stringify(livecalls)}`);
+        console.log(
+          `SKYWRITER ${JSON.stringify(skywriter)} ${JSON.stringify(
+            livecalls.skywriter
+          )}`
+        );
+      }
     }
     //return () => setCanjoin(false);
   }, [canjoin]);
@@ -122,6 +145,7 @@ const LiveCallScreen = ({
   React.useEffect(() => {
     if (leavingCall) {
       console.log(`LEAVING CALL ${JSON.stringify(user.name)}`);
+      AsyncStorage.removeItem("InLiveCall");
       setJoining(false);
       setInitialize("Leaving Call");
       setSubText("Saving and refreshing content");
@@ -153,7 +177,10 @@ const LiveCallScreen = ({
     <LiveCallInProgress
       token={token}
       navigation={navigation}
-      skywriter={skywriter}
+      skywriter={skywriter ? skywriter : livecalls.skywriter}
+      callAlreadyInProgress={
+        route.params.joinInProgress ? route.params.joinInProgress : false
+      }
     />
   ) : (
     <LiveCallSplashScreen text={subText} headerText={initialize} />

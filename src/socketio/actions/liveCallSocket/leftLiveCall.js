@@ -84,6 +84,9 @@ export function offLeftLiveCall() {
 }
 
 function getId(user) {
+  if (!user) {
+    return null;
+  }
   if (user.id) {
     return user.id;
   } else {

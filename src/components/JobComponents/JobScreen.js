@@ -6,11 +6,6 @@ const JobScreen = ({ navigation, user, jobs }) => {
   const { allJobs, loadingJobs } = jobs;
   return (
     <View style={styles.homeContainer}>
-      <View style={{ paddingTop: 15 }}>
-        <Text style={styles.headerText}>
-          Job search view goes here {user.name}
-        </Text>
-      </View>
       <JobList jobs={allJobs} />
       <Button
         color="#fff"

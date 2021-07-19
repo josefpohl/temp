@@ -23,7 +23,7 @@ export const callAccept = (liveCallData) => {
 };
 
 export const onCallAccept = () => (dispatch) => {
-  console.log(`Incoming Call Accepted`);
+  console.log(`Incoming Call Accepted listener exec`);
 
   const onCallAccepted = (e) => {
     console.log(`Call ACCEPT RECEIVED ${JSON.stringify(e)}`);

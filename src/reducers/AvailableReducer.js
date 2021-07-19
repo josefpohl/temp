@@ -60,6 +60,10 @@ export default (state = initial_state, action) => {
         (a) => getId(a.userLoggedIn) === idLLC
       );
       let newAvailLLC = state.allAvailables[indexLLC];
+      if (typeof newAvailLLC === "undefined") {
+        return { ...state };
+      }
+
       newAvailLLC.isAvailable = true;
       newAvailLLC.inLiveCall = false;
       let newAvailablesLLC = state.allAvailables;

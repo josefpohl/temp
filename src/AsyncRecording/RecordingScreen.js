@@ -2,21 +2,15 @@ import React from "react";
 import { View, StyleSheet, Button, Text } from "react-native";
 import { connect } from "react-redux";
 import RecorderComponent from "AsyncRecording/recorder/RecorderComponent";
-import RecorderFromV1 from "./RecorderFromV1";
+//import RecorderFromV1 from "./RecorderFromV1";
+import { setInAsyncRecording } from "actions/jobActions";
 
 //Josef - I think the worst part about the old recorder was the save and the redux state.
-const RecordingScreen = ({ navigation, user }) => {
+const RecordingScreen = ({ navigation, user, setInAsyncRecording }) => {
   return (
     <View style={styles.homeContainer}>
-      <Text>Hello Recording Screen {user.name}</Text>
-      <Button
-        color="#fff"
-        title="Go Home"
-        onPress={() => {
-          navigation.navigate("Home");
-        }}
-      />
-      <RecorderComponent navigation={navigation} />
+      <Text style={styles.recordHeader}>Recording</Text>
+      <RecorderComponent navigation={navigation} user={user} />
     </View>
   );
 };
@@ -25,13 +19,19 @@ const mapStateToProps = (state) => ({
   user: state.auth.user,
 });
 
-export default connect(mapStateToProps, {})(RecordingScreen);
+export default connect(mapStateToProps, { setInAsyncRecording })(
+  RecordingScreen
+);
 
 const styles = StyleSheet.create({
   homeContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "green",
+    backgroundColor: "#2e9aa7",
+  },
+  recordHeader: {
+    fontSize: 48,
+    color: "#fff",
   },
 });

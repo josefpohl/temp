@@ -22,9 +22,16 @@ import {
   onAlert,
   onRoomConnect,
 } from "../socketio/actions/liveCallSocket";
+import {
+  logoutUser,
+  userLoading,
+  userLoadingComplete,
+} from "../actions/authenticationActions";
+import Toast from "react-native-toast-message";
 export default function AppStateListener() {
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.auth);
+  const liveCallState = useSelector((state) => state.livecalls);
   const appState = useRef(AppState.currentState);
   const [appStateVisible, setAppStateVisible] = useState(appState.current);
 
@@ -41,28 +48,49 @@ export default function AppStateListener() {
       appState.current.match(/inactive|background/) &&
       nextAppState === "active"
     ) {
-      dispatch(connect());
-      console.log("App has come to the foreground!");
-      console.log(authState);
-      AsyncStorage.getItem("user").then((user) => {
-        if (user) {
-          dispatch(userConnected(JSON.parse(user)));
-          //re-initialize all other events...
-          dispatch(onUserConnected());
-          dispatch(onUserDisconnected());
-          dispatch(onRoomInitiate());
-          dispatch(onCallAccept());
-          dispatch(onMessage());
-          dispatch(onSkywriterArrived());
-          dispatch(onLeaving());
-          dispatch(onLeftLiveCall());
-          dispatch(onInLiveCall());
-          dispatch(onTerminate());
-          dispatch(onCallReject());
-          dispatch(onAlert());
-          dispatch(onRoomConnect());
-          console.log(`GET CURRENT AVAILABLES for ${user}`);
-          dispatch(getCurrentAvailable(JSON.parse(user)));
+      AsyncStorage.getItem("InLiveCall").then((value) => {
+        if (value !== "true") {
+          dispatch(connect());
+          console.log("App has come to the foreground!");
+          console.log(authState);
+          AsyncStorage.getItem("user").then((user) => {
+            if (user) {
+              //dispatch(userLoading());
+              AsyncStorage.getItem("inactiveTime").then((time) => {
+                const now = new Date().getTime();
+                const inactive = Number.parseInt(time);
+                const diff = now - inactive;
+                if (diff > 60 * 1000 * 15) {
+                  dispatch(logoutUser(JSON.parse(user)));
+                  Toast.show({
+                    text1: "Idle time log out",
+                    text2:
+                      "You were inactive for a time that exceeded 15 minutes.",
+                  });
+                  dispatch(userLoadingComplete());
+                } else {
+                  dispatch(userConnected(JSON.parse(user)));
+                  //re-initialize all other events...
+                  dispatch(onUserConnected());
+                  dispatch(onUserDisconnected());
+                  dispatch(onRoomInitiate());
+                  dispatch(onCallAccept());
+                  dispatch(onMessage());
+                  dispatch(onSkywriterArrived());
+                  dispatch(onLeaving());
+                  dispatch(onLeftLiveCall());
+                  dispatch(onInLiveCall());
+                  dispatch(onTerminate());
+                  dispatch(onCallReject());
+                  dispatch(onAlert());
+                  dispatch(onRoomConnect());
+                  console.log(`GET CURRENT AVAILABLES for ${user}`);
+                  dispatch(getCurrentAvailable(JSON.parse(user)));
+                  // dispatch(userLoadingComplete());
+                }
+              });
+            }
+          });
         }
       });
     }
@@ -71,7 +99,15 @@ export default function AppStateListener() {
       appState.current.match(/active/) &&
       nextAppState.match(/inactive|background/)
     ) {
-      dispatch(disconnect());
+      AsyncStorage.getItem("InLiveCall").then((value) => {
+        if (value !== "true") {
+          console.log(`Not in live call`);
+          AsyncStorage.setItem("inactiveTime", new Date().getTime().toString());
+          dispatch(disconnect());
+        } else {
+          console.log(`AppStateListener -- In Live call`);
+        }
+      });
     }
 
     appState.current = nextAppState;

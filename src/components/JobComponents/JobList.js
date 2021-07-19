@@ -10,10 +10,16 @@ import {
 } from "react-native";
 import { ActivityIndicator, Colors } from "react-native-paper";
 import JobCard from "./JobCard";
+import JobFilter from "./JobFilter";
 import { getJobs } from "../../actions/jobActions";
 
 function JobList({ jobs, loadingJobs, getJobs, user }) {
   const [loading, setLoading] = React.useState(false);
+  const [showLive, setShowLive] = React.useState(false);
+  const [showDictations, setDictations] = React.useState(false);
+  const [sortByDate, setSortByDate] = React.useState(false);
+  const [filter, setFilter] = React.useState("");
+
   const getCard = ({ item }) => {
     return <JobCard job={item} />;
   };
@@ -31,6 +37,9 @@ function JobList({ jobs, loadingJobs, getJobs, user }) {
       }
     />
   );
+  const handleChange = () => {
+    console.log("handle change");
+  };
   return (
     <View style={styles.container}>
       {loadingJobs ? (
@@ -60,3 +69,13 @@ const mapStateToProps = (state) => ({
   loadingJobs: state.jobs.loadingJobs,
 });
 export default connect(mapStateToProps, { getJobs })(JobList);
+
+/*
+  <JobFilter
+          handleChange={this.handleChange}
+          showLiveCalls={showLive}
+          showDictations={showDictations}
+          sortByDate={sortByDate}
+          filter={filter}
+        />
+*/

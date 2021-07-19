@@ -19,17 +19,21 @@ import Toast from "react-native-toast-message";
 const HomeStack = createStackNavigator();
 const HomeStackScreen = () => (
   <HomeStack.Navigator>
-    <HomeStack.Screen name="Home" component={HomeScreen} />
+    <HomeStack.Screen
+      name="Home"
+      component={HomeScreen}
+      options={{ headerTitle: "Skywriter MD" }}
+    />
     <HomeStack.Screen name="Jobs" component={JobScreen} />
     <HomeStack.Screen
       name="Recording"
       component={RecordingScreen}
-      options={{ gestureEnabled: false }}
+      options={{ gestureEnabled: false, headerShown: false }}
     />
     <HomeStack.Screen
       name="LiveCall"
       component={LiveCallScreen}
-      options={{ gestureEnabled: false }}
+      options={{ gestureEnabled: false, headerShown: false }}
     />
     <HomeStack.Screen name="Other" component={OtherScreen} />
   </HomeStack.Navigator>
@@ -60,6 +64,7 @@ const mapStateToProps = (state) => {
   return {
     isAuthenticated: state.auth.isAuthenticated,
     loading: state.auth.loading,
+    inLiveCall: state.livecalls.inLiveCall,
   };
 };
 

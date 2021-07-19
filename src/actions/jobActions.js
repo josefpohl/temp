@@ -8,7 +8,10 @@ import {
   ADD_URL,
   TITLE_CHANGED,
   STORE_JOBINPROGRESS,
-  CALL_ENDED,LOADING_JOBS, SET_JOBS
+  CALL_ENDED,
+  SET_JOBS,
+  IN_ASYNC_RECORDING,
+  END_RECORDING,
 } from "./actionTypes";
 import config from "../config";
 import RNFS from "react-native-fs";
@@ -17,24 +20,24 @@ export const getJobs = (userid) => async (dispatch) => {
   dispatch({ type: LOADING_JOBS });
   const uri = config.SERVER + `/api/jobs/provider/${userid}`;
   //TODO refine to users who can take calls for this team
-  const myJobs = await axios.get(uri).then((res) => {
-    return res.data;
+  console.log(`getJobs for user`);
+  axios.get(uri).then((res) => {
+    dispatch({ type: SET_JOBS, payload: res.data });
+    dispatch({ type: LOADING_JOBS });
   });
+};
 
-  dispatch({ type: SET_JOBS, payload: myJobs });
-  dispatch({ type: LOADING_JOBS });
-}
-export const getMyJobs = (userId) => (dispatch) => {
-  dispatch(setJobLoading());
-
+//Internal function for getting jobs.
+export const getMyJobs = async (userId) => {
   const uri = config.SERVER + `/api/jobs/provider/${userId}`;
   console.log("My Jobs,", userId);
-  axios.get(uri).then((res) => {
-    dispatch({
-      type: GET_USERSJOBS,
+  const data = await axios.get(uri).then((res) => {
+    return {
+      type: SET_JOBS,
       payload: res.data,
-    });
+    };
   });
+  return data;
 };
 
 export const getJob = (jobId) => (dispatch) => {
@@ -47,6 +50,7 @@ export const getJob = (jobId) => (dispatch) => {
       payload: res.data,
     })
   );
+  dispatch(setJobLoading());
 };
 
 export const titleChanged = (title) => {
@@ -72,118 +76,55 @@ export const removeJobInProgress = () => (dispatch) => {
   };
 };
 
-export const uploadNewJob = ({ jobData, audioFileName }) => (dispatch) => {
-  const uri = config.SERVER + "/api/jobs";
-  console.log("In uploadNewJob", jobData, uri);
-  dispatch(setJobLoading());
-  axios
-    .post(uri, jobData)
-    .then((res) => {
-      console.log("Upload Response", res.data);
-      // if (!second) {
-      //   throw (Error, { message: "dummy error" });
-      // }
-      if (res.error) {
-        console.log("Error on File Upload: ", res.error);
-      } else {
-        setTimeout(() => {
-          if (RNFS.exists(audioFileName)) {
-            return RNFS.unlink(audioFileName).then(() =>
-              console.log("File Deleted:", audioFileName)
-            );
-          }
-        }, 5000); // 5 second delay on delete
-        dispatch({
-          type: ADD_NEW_JOB,
-          payload: res.data,
-        });
-        dispatch({
-          type: STORE_JOBINPROGRESS,
-          payload: { data: null, error: false },
-        });
-        dispatch({
-          type: CALL_ENDED,
-          payload: true,
-        });
-      }
-      //return res;
-    })
-    .catch((err) => {
-      dispatch({
-        type: STORE_JOBINPROGRESS,
-        payload: { data: { jobData, audioFileName }, error: true },
-      });
-      console.log("Error uploadNewJob", err);
-    });
-};
-
-export const uploadLiveCallJob = (jobData) => (dispatch) => {
-  const uri = config.SERVER + "/api/jobs/livecall";
-  console.log("In uploadLiveCallJob", jobData, uri);
-  dispatch(setJobLoading());
-  axios
-    .post(uri, jobData)
-    .then((res) => {
-      console.log("Upload Update Response", res.data);
-      // if (!second) {
-      //   throw (Error, { message: "dummy error" });
-      // }
-      if (res.error) {
-        console.log("Error on File Upload: ", res.error);
-      } else {
-        dispatch({
-          type: ADD_NEW_JOB,
-          payload: res.data,
-        });
+export const uploadNewJob =
+  ({ jobData, audioFileName, userid }) =>
+  (dispatch) => {
+    const uri = config.SERVER + "/api/jobs";
+    console.log("In uploadNewJob", jobData, uri, userid);
+    dispatch(setJobLoading());
+    axios
+      .post(uri, jobData)
+      .then(async (res) => {
+        console.log("Upload Response", res.data);
+        // if (!second) {
+        //   throw (Error, { message: "dummy error" });
+        // }
+        if (res.error) {
+          console.log("Error on File Upload: ", res.error);
+        } else {
+          setTimeout(() => {
+            if (RNFS.exists(audioFileName)) {
+              return RNFS.unlink(audioFileName).then(() =>
+                console.log("File Deleted:", audioFileName)
+              );
+            }
+          }, 5000); // 5 second delay on delete
+          dispatch({
+            type: ADD_NEW_JOB,
+            payload: res.data,
+          });
+          dispatch({
+            type: STORE_JOBINPROGRESS,
+            payload: { data: null, error: false },
+          });
+          dispatch({
+            type: END_RECORDING,
+          });
+        }
+        //return res;
+        const jobs = await getMyJobs(userid);
+        dispatch(jobs);
+        dispatch(setJobLoading());
+      })
+      .catch((err) => {
         dispatch({
           type: STORE_JOBINPROGRESS,
-          payload: { data: null, error: false },
+          payload: { data: { jobData, audioFileName }, error: true },
         });
-      }
-      //return res;
-    })
-    .catch((err) => {
-      dispatch({
-        type: STORE_JOBINPROGRESS,
-        payload: { data: { jobData }, error: true },
+        console.log("Error uploadNewJob", err);
+        dispatch(setJobLoading());
       });
-      console.log("Error uploadNewJob", err);
-    });
-};
-
-export const updateLiveCallJob = (jobData) => (dispatch) => {
-  const uri = config.SERVER + "/api/jobs/update/livecall";
-  console.log("In updateLiveCallJob", jobData, uri);
-  dispatch(setJobLoading());
-  axios
-    .post(uri, jobData)
-    .then((res) => {
-      console.log("Upload Response", res.data);
-      // if (!second) {
-      //   throw (Error, { message: "dummy error" });
-      // }
-      if (res.error) {
-        console.log("Error on File Upload: ", res.error);
-      } else {
-        dispatch({
-          type: UPDATE_NEW_JOB,
-          payload: res.data,
-        });
-        dispatch({
-          type: STORE_JOBINPROGRESS,
-          payload: { data: null, error: false },
-        });
-      }
-      //return res;
-    })
-    .catch((err) => {
-      dispatch({
-        type: STORE_JOBINPROGRESS,
-        payload: { data: { jobData }, error: true },
-      });
-      console.log("Error uploadNewJob", err);
-    });
-};
+  };
 
 //UNUSED CURRENTLY
 export const getSignedURL = (job) => (dispatch) => {
@@ -202,5 +143,19 @@ export const getSignedURL = (job) => (dispatch) => {
 export const setJobLoading = () => {
   return {
     type: LOADING_JOBS,
+  };
+};
+
+export const setEndRecording = () => {
+  return {
+    type: END_RECORDING,
+  };
+};
+
+export const setInAsyncRecording = (recordingData) => {
+  console.log(`Setting state IN_ASYNC_RECORDING`);
+  return {
+    type: IN_ASYNC_RECORDING,
+    payload: recordingData,
   };
 };

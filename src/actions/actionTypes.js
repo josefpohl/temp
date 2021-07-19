@@ -33,6 +33,8 @@ export const GET_JOB = "GET_JOB";
 export const ADD_URL = "ADD_URL";
 export const TITLE_CHANGED = "TITLE_CHANGED";
 export const NEW_JOB_SUBMITTED = "NEW_JOB_SUBMITTED";
+export const IN_ASYNC_RECORDING = "IN_ASYNC_RECORDING";
+export const END_RECORDING = "END_RECORDING";
 
 //Live call
 export const CALL_ENDED = "CALL_ENDED";

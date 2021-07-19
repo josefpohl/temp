@@ -19,13 +19,12 @@ const theme = {
 export default function App() {
   return (
     <SafeAreaProvider>
-    <Provider store={store}>
-      <PaperProvider theme={theme}>
-        <AppStateListener />
-        <Navigation />
-      </PaperProvider>
-    </Provider>
+      <Provider store={store}>
+        <PaperProvider theme={theme}>
+          <AppStateListener />
+          <Navigation />
+        </PaperProvider>
+      </Provider>
     </SafeAreaProvider>
-
   );
 }

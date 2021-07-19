@@ -17,6 +17,8 @@ target 'skywriterMDMobile' do
 
   pod 'react-native-twilio-video-webrtc', path: '../node_modules/react-native-twilio-video-webrtc'
 
+  pod 'RNCallKeep', :path => '../node_modules/react-native-callkeep'
+
   target 'skywriterMDMobileTests' do
     inherit! :complete
     # Pods for testing

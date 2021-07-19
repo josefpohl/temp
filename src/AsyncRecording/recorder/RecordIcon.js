@@ -20,6 +20,7 @@ export default function RecordIcon({ onPress, labelText }) {
 const styles = {
   buttonLabelText: {
     fontSize: 24,
+    textAlign: "center",
     fontWeight: "600",
     color: "#fff",
   },

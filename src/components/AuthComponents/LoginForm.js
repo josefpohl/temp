@@ -54,13 +54,15 @@ const LoginForm = (props) => {
         });
         return;
       }
-      await Keychain.setGenericPassword(email, password, AUTH_OPTIONS).then(
-        (result) => {
-          console.log(
-            `Setting generic password-- keychain ${JSON.stringify(result)}`
-          );
-        }
-      );
+     // if (biometryType !== null) {
+        await Keychain.setGenericPassword(email, password, AUTH_OPTIONS).then(
+          (result) => {
+            console.log(
+              `Setting generic password-- keychain ${JSON.stringify(result)}`
+            );
+          }
+        );
+      //}
       props.loginUser(email, password);
     }, 500),
     [email, password]
@@ -118,7 +120,7 @@ const LoginForm = (props) => {
           </View>
           <View style={styles.loginButton}>
             <TouchableOpacity onPress={debounceLogin}>
-              <Text style={{ color: "#fff", fontSize: 25 }}>Authenticate</Text>
+              <Text style={{ color: "#000", fontSize: 25 }}>Authenticate</Text>
             </TouchableOpacity>
           </View>
           <View>
@@ -137,6 +139,9 @@ const LoginForm = (props) => {
               </Text>
             </Icon.Button>
           </View>
+          <Text style={{ textAlign: "center", fontSize: 12 }}>
+            Version: 4.0.10 (6)
+          </Text>
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -177,7 +182,7 @@ const styles = StyleSheet.create({
   loginButton: {
     marginTop: 45,
     marginBottom: 30,
-    backgroundColor: "#2e9aa7",
+    backgroundColor: "#aaa",
     padding: 20,
     //marginLeft: 200,
   },

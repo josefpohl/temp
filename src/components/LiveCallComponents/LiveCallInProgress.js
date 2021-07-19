@@ -8,9 +8,19 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import { Button, Modal, Portal } from "react-native-paper";
+import {
+  Button,
+  Modal,
+  Portal,
+  ActivityIndicator,
+  Colors,
+} from "react-native-paper";
+import AsyncStorage from "@react-native-community/async-storage";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { connect } from "react-redux";
 import Toast from "react-native-toast-message";
+import RNCallKeep from "react-native-callkeep";
+import { v4 as uuid } from "uuid";
 import {
   TwilioVideo,
   TwilioVideoLocalView,
@@ -24,6 +34,12 @@ import {
   message,
 } from "../../socketio/actions/liveCallSocket/";
 
+RNCallKeep.setup({
+  ios: {
+    appName: "SkywriterMDMobile",
+  },
+});
+
 import {
   cancelCall,
   afterCallDisconnect,
@@ -31,10 +47,11 @@ import {
   addMessage,
   setRoomInformation,
   saveCall,
+  skywriterArrived,
 } from "../../state/liveCalls";
 
 import Chat from "./Chat";
-import { isEnabled } from "react-native/Libraries/Performance/Systrace";
+import RNBeep from "react-native-a-beep";
 
 const LiveCallInProgress = ({
   navigation,
@@ -63,34 +80,122 @@ const LiveCallInProgress = ({
   description,
   setRoomInformation,
   roomInfo,
+  callAlreadyInProgress,
+  livecalls,
+  skywriterHasArrived,
+  currentlyInLiveCall,
+  incomingCall,
 }) => {
   const twilioRef = React.useRef(null);
   const [muted, setMuted] = React.useState(false);
-  const [canCancel, setCanCancel] = React.useState(true);
+  const [canCancel, setCanCancel] = React.useState(!callAlreadyInProgress);
   const [cancelledCall, setCancelledCall] = React.useState(false);
+  const [cancelReason, setCancelReason] = React.useState("From Button");
   const [audioTracks, setAudioTracks] = React.useState(new Map());
   const [videoTracks, setVideoTracks] = React.useState(new Map());
   const [connected, setConnected] = React.useState(false);
   const [screenShare, setScreenShare] = React.useState(false);
   const [showScreenShare, setShowScreenShare] = React.useState(false);
-  const [saveable, setSaveable] = React.useState(false);
-  const [saved, setSaved] = React.useState(false);
+  const [callUUID, setCallUUID] = React.useState();
+  const [audioConnected, setAudioConnected] = React.useState(false);
+  const [announcements, setAnnouncements] = React.useState(
+    "Connecting to your call"
+  );
+  const [networkQuality, setNetworkQuality] = React.useState(5);
+  const [error, setError] = React.useState("");
+  const [cancelTimeout, setCancelTimeout] = React.useState(false);
+  let timer = null;
   React.useEffect(() => {
-    if (skywriter && roomname && callAccepted) {
+    console.log(
+      `CALL BEING MADE INITIAL: callAccepted ${callAccepted} Audio ${audioConnected}, Sky Arrived ${skywriterHasArrived}`
+    );
+  }, []);
+  React.useEffect(() => {
+    console.log(
+      `CALL BEING MADE: callAccepted ${callAccepted} Audio ${audioConnected}, Sky Arrived ${skywriterHasArrived}`
+    );
+    if (
+      (skywriter &&
+        roomname &&
+        callAccepted &&
+        audioConnected &&
+        skywriterHasArrived &&
+        connected) ||
+      incomingCall
+    ) {
+      AsyncStorage.setItem("InLiveCall", "true");
+      console.log(`CLEARING TIMEOUT ON LIVE CALL`);
+      clearTimeout(timer);
+      timer = null;
       setCanCancel(false);
     }
-  }, [skywriter, roomname, callAccepted]);
+
+    if (callAccepted) {
+      console.log(`LiveCallInProgress Call Accepted`);
+      Toast.show({
+        text1: "Call was accepted!",
+        text2: `Skywriter ${skywriter.userLoggedIn.name} will be arriving shortly.`,
+      });
+    }
+
+    if (skywriterHasArrived) {
+      Toast.show({
+        text1: "Skywriter has arrived!",
+        text2: `We are joining your call.`,
+      });
+    }
+  }, [
+    skywriter,
+    roomname,
+    callAccepted,
+    audioConnected,
+    skywriterHasArrived,
+    connected,
+  ]);
 
   React.useEffect(() => {
-    console.log(`Connected: ${connected} and CanJoinRoom ${canJoinRoom}`);
-    if (!connected && canJoinRoom) {
+    let timerTO;
+    if (!callAccepted) {
+      timerTO = setTimeout(() => {
+        setCancelReason("Timeout");
+        setCancelledCall(true);
+        Toast.show({
+          text1: `Cancelled`,
+          text2: `Your side has failed to connect to the call`,
+        });
+      }, 30000);
+    }
+    return () => clearTimeout(timerTO);
+  }, [callAccepted]);
+
+  React.useEffect(() => {
+    if (!callUUID) {
+      console.log("CallKeep setup/Events called");
+      callKeepEvents();
+      const newCallUUID = uuid.v4();
+      startCallKeep(newCallUUID, user.name);
+      setCallUUID(newCallUUID);
+    }
+    return () => endCallKeep();
+  }, []);
+
+  React.useEffect(() => {
+    console.log(
+      `Connected: ${connected} and CanJoinRoom ${canJoinRoom} and In Progress ${callAlreadyInProgress}`
+    );
+    if (!connected && canJoinRoom && !callAlreadyInProgress) {
       twilioRef.current.connect({
         accessToken: token,
         roomName: roomname,
+        enableNetworkQualityReporting: true,
       });
       //twilioRef.current.setLocalAudioEnabled(true);
       setConnected(true);
       console.log("Can now connect");
+      Toast.show({
+        text1: `Connected`,
+        text2: `Your side has been connected to the call`,
+      });
     }
   }, [canJoinRoom, connected]);
 
@@ -107,13 +212,14 @@ const LiveCallInProgress = ({
   React.useEffect(() => {
     if (cancelledCall) {
       console.log("Cancelled Call set");
-      callCancelled(user, skywriter.userLoggedIn, "From Button", roomname);
+      callCancelled(user, skywriter.userLoggedIn, cancelReason, roomname);
       cancelCall();
     }
   }, [cancelledCall]);
 
   React.useEffect(() => {
     if (typeof notified !== "undefined" && notified !== null) {
+      RNBeep.beep();
       Toast.show({
         text1: "ALERT!",
         text2: `${notified} needs your attention.`,
@@ -123,7 +229,7 @@ const LiveCallInProgress = ({
   }, [notified]);
 
   React.useEffect(() => {
-    if (canPreSave) {
+    if (canPreSave && !callAlreadyInProgress) {
       console.log(`SAVING CALL FROM LIVECALL IN PROGRESS -- PRE-SAVE`);
       //CONSIDER MOVING THIS TO HOOK
       let jobData = {};
@@ -138,6 +244,56 @@ const LiveCallInProgress = ({
     }
   }, [canPreSave]);
 
+  const callKeepEvents = () => {
+    RNCallKeep.addEventListener("answerCall", (data) => {
+      let { callUUID } = data;
+      console.log("onAnswerCallAction", callUUID);
+    });
+    RNCallKeep.addEventListener("didReceiveStartCallAction", (data) => {
+      let { handle, callUUID, name } = data;
+      console.log("didReceiveStartCallAction: ", handle, name, callUUID);
+    });
+    RNCallKeep.addEventListener("endCall", (data) => {
+      console.log("onEndCallAction");
+    });
+    RNCallKeep.addEventListener("didDisplayIncomingCall", (data) => {
+      let { error } = data;
+      console.log("onIncomingCallDisplayed", error);
+    });
+    RNCallKeep.addEventListener("didPerformSetMutedCallAction", (data) => {
+      let { muted, callUUID } = data;
+      console.log("onToggleMute", muted, callUUID);
+    });
+    RNCallKeep.addEventListener("didToggleHoldCallAction", (data) => {
+      let { hold, callUUID } = data;
+      console.log("onToggleHold", hold, callUUID);
+    });
+    RNCallKeep.addEventListener("didPerformDTMFAction", (data) => {
+      let { digits, callUUID } = data;
+      console.log("onDTMFAction", digits, callUUID);
+    });
+    RNCallKeep.addEventListener("didActivateAudioSession", (data) => {
+      console.log("audioSessionActivated");
+    });
+  };
+
+  const startCallKeep = (uuid, name) => {
+    console.log(`Start call keep startCall`);
+    RNCallKeep.startCall(uuid, name, name);
+  };
+
+  endCallKeep = () => {
+    console.log("EndCallKeep called");
+    RNCallKeep.endCall(callUUID);
+    RNCallKeep.removeEventListener("answerCall");
+    RNCallKeep.removeEventListener("didReceiveStartCallAction");
+    RNCallKeep.removeEventListener("endCall");
+    RNCallKeep.removeEventListener("didDisplayIncomingCall");
+    RNCallKeep.removeEventListener("didPerformSetMutedCallAction");
+    RNCallKeep.removeEventListener("didPerformDTMFAction");
+    RNCallKeep.removeEventListener("didActivateAudioSession");
+  };
+
   const muteCall = () => {
     console.log(`Muted changes from ${muted} to ${!muted}`);
     twilioRef.current.setLocalAudioEnabled(muted).then((isEnabled) => {
@@ -147,15 +303,26 @@ const LiveCallInProgress = ({
   };
 
   const cancelButton = (
-    <Button
-      raised
-      mode="contained"
-      theme={{ roundness: 3 }}
-      onPress={() => setCancelledCall(true)}
-      style={styles.buttonStyle}
-    >
-      <Text style={styles.dataElements}>Cancel </Text>
-    </Button>
+    <View>
+      <ActivityIndicator
+        animating={true}
+        colors={Colors.white}
+        size={"large"}
+      />
+      <Text style={{ fontSize: 36, color: "#fff" }}>{announcements}</Text>
+      <Text style={{ fontSize: 35, color: "red" }}>{error}</Text>
+      {callAccepted ? null : (
+        <Button
+          raised
+          mode="contained"
+          theme={{ roundness: 3 }}
+          onPress={() => setCancelledCall(true)}
+          style={styles.buttonStyle}
+        >
+          <Text style={styles.dataElements}>Cancel </Text>
+        </Button>
+      )}
+    </View>
   );
 
   const endCallButton = (
@@ -164,15 +331,16 @@ const LiveCallInProgress = ({
       mode="contained"
       theme={{ roundness: 3 }}
       style={styles.buttonStyle}
-      onPress={() =>
+      onPress={() => {
+        endCallKeep();
         leaving({
           sender: user,
           receiver: skywriter.userLoggedIn,
           terminatedBySender: isSender,
-          from: "From Button",
+          from: "Button (IOS)",
           roomname,
-        })
-      }
+        });
+      }}
     >
       <Text style={styles.dataElements}>End Call </Text>
     </Button>
@@ -221,10 +389,11 @@ const LiveCallInProgress = ({
   );
   const _onRoomDidConnect = (data) => {
     //{ roomName, error }
-    console.log(`On Room Connected`);
-    console.log(
-      `From room did connect ${data.roomName} ${data.roomSid} ${data.localParticipant.identity} ${data.localParticipant.sid}`
-    );
+    const { roomName, error } = data;
+    console.log(`On Room Connected ${roomName} ${JSON.stringify(error)}`);
+    if (error) {
+      setError(JSON.stringify(error));
+    }
     //TODO set ROOM INFO AND TITLE
     let roomInfo = {
       participantSid: data.localParticipant.sid,
@@ -232,15 +401,18 @@ const LiveCallInProgress = ({
       participant: data.localParticipant.identity,
     };
     setRoomInformation(roomInfo);
+    setAnnouncements("Waiting for skywriter");
   };
 
   const _onRoomDidDisconnect = ({ roomName, error }) => {
     console.log(`Disconnect: ${roomName} Error ${JSON.stringify(error)}`);
+    setError(JSON.stringify(error));
     if (error) {
       Toast.show({
         text1: "ERROR DURING LIVE CALL",
         text2: `Please check your network connection.`,
       });
+      endCallKeep();
       leaving({
         sender: user,
         receiver: skywriter.userLoggedIn,
@@ -253,6 +425,7 @@ const LiveCallInProgress = ({
   };
   const _onRoomDidFailToConnect = (error) => {
     console.log("[FailToConnect]ERROR: ", error);
+    setError(JSON.stringify(error));
   };
 
   const _onParticipantAddedAudioTrack = ({ participant, track }) => {
@@ -267,6 +440,7 @@ const LiveCallInProgress = ({
         ],
       ])
     );
+    setAudioConnected(true);
   };
 
   const _onParticipantRemovedAudioTrack = ({ participant, track }) => {
@@ -310,19 +484,74 @@ const LiveCallInProgress = ({
     setScreenShare(false);
     setShowScreenShare(!showScreenShare);
   };
+
+  const _onNetworkLevelChanged = ({ participant, isLocalUser, quality }) => {
+    console.log(
+      `Participant: ${JSON.stringify(
+        participant
+      )} ${isLocalUser} Quality ${JSON.stringify(quality)}`
+    );
+
+    if (isLocalUser && (quality === 1 || quality === 2)) {
+      //RNBeep.beep();
+      Toast.show({
+        text1: `Network quality is poor.`,
+        text2: `Your network connection is at a ${quality} out of 5. Please consult your local IT group.`,
+      });
+    }
+    if (isLocalUser) {
+      setNetworkQuality(quality);
+    }
+  };
+
+  const getNetwork = () => {
+    let modifier = "";
+    if (networkQuality === 5 || networkQuality === 4) {
+      modifier = "network-strength-4";
+    } else if (networkQuality === 3) {
+      modifier = "network-strength-3";
+    } else if (networkQuality === 2) {
+      modifier = "network-strength-2";
+    } else if (networkQuality === 1) {
+      modifier = "network-strength-1";
+    } else if (networkQuality === 0) {
+      modifier = "network-strength-outline";
+    } else {
+      modifier = "network-strength-off";
+    }
+
+    return (
+      <Icon name={modifier} backgroundColor="#0E8AA5" color="#fff" size={25} />
+    );
+  };
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={"padding"}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.mainContatiner}>
+          <View
+            style={{
+              justifyContent: "flex-end",
+              alignItems: "flex-end",
+              alignSelf: "flex-end",
+              margin: 10,
+              marginTop: 20,
+              flexDirection: "row",
+            }}
+          >
+            {getNetwork()}
+          </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTextStyle}>
               In Live Call with {skywriter.userLoggedIn.name}
             </Text>
+            {canCancel ? null : (
+              <Text style={{ fontSize: 35, color: "red" }}>{error}</Text>
+            )}
           </View>
           <View style={styles.contentContainer}>
             {canCancel ? null : (
               <View style={styles.chatContainer}>
-                <Chat skywriter={skywriter} />
+                <Chat skywriter={skywriter ? skywriter : null} />
               </View>
             )}
             <View style={styles.buttonContainer}>
@@ -387,6 +616,7 @@ const LiveCallInProgress = ({
             onParticipantRemovedAudioTrack={_onParticipantRemovedAudioTrack}
             onParticipantAddedVideoTrack={_onParticipantAddedVideoTrack}
             onParticipantRemovedVideoTrack={_onParticipantRemovedVideoTrack}
+            onNetworkQualityLevelsChanged={_onNetworkLevelChanged}
           />
         </View>
       </TouchableWithoutFeedback>
@@ -407,6 +637,10 @@ const mapStateToProps = (state) => ({
   canPreSave: state.livecalls.canPreSave,
   description: state.livecalls.description,
   roomInfo: state.livecalls.roomInfo,
+  currentlyInLiveCall: state.livecalls.currentlyInLiveCall,
+  incomingCall: state.livecalls.incomingCall,
+  livecalls: state.livecalls,
+  skywriterHasArrived: state.livecalls.skywriterHasArrived,
 });
 export default connect(mapStateToProps, {
   callCancelled, //socket

@@ -73,6 +73,13 @@ export const passwordChanged = (text) => {
   };
 };
 
+export const userLoading = () => {
+  return { type: USER_LOADING };
+};
+
+export const userLoadingComplete = () => {
+  return { type: USER_LOADING_COMPLETE };
+};
 //Action
 export const loginUser = (emailIn, passwordIn) => (dispatch) => {
   console.log(`EMAIL and PASSWORD: ${emailIn} ${passwordIn}`);

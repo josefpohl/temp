@@ -34,7 +34,7 @@ const initial_state = {
   isSender: false,
   canJoinRoom: false,
   callAccepted: false,
-  skywriterArrived: true,
+  skywriterHasArrived: false,
   callWillEnd: false,
   leavingCall: false,
   savedLiveCall: false,
@@ -47,6 +47,8 @@ const initial_state = {
   description: "",
   canPreSave: false,
   callFinished: false,
+  incomingCall: false,
+  currentlyInLiveCall: false,
   incomingCall: false,
   messages: [],
 };
@@ -66,18 +68,31 @@ export default (state = initial_state, action) => {
     case SET_TOKEN:
       return { ...state, token: action.payload };
     case ROOM_INITIATE:
-      return { ...state, roomname: action.payload.roomname, canJoinRoom: true };
+      return {
+        ...state,
+        roomname: action.payload.roomname,
+        canJoinRoom: true,
+        currentlyInLiveCall: true,
+      };
     case CALL_ACCEPTED:
       return { ...state, callAccepted: true };
     case ADD_MESSAGE:
       let newMessages = [...state.messages, action.payload];
       return { ...state, messages: [...newMessages] };
     case SKYWRITER_ARRIVED:
-      return { ...state, skywriterArrived: true };
+      console.log(
+        `SkywriterArrived Event Received ${JSON.stringify(action.payload)}`
+      );
+      return { ...state, skywriterHasArrived: true, callAccepted: true };
     case SET_IS_SENDER:
       return { ...state, isSender: action.payload };
     case LEAVING:
-      return { ...state, callWillEnd: true };
+      return {
+        ...state,
+        callWillEnd: true,
+        currentlyInLiveCall: false,
+        incomingCall: false,
+      };
     case CLEAR_LIVE_CALL:
       return { ...initial_state };
     case SAVED_LIVECALL:
@@ -88,11 +103,26 @@ export default (state = initial_state, action) => {
       console.log(`Setting callFinished true`);
       return { ...state, callFinished: true };
     case CALL_CANCELLED:
-      return { ...state, callWillEnd: true, callCancelled: true };
+      return {
+        ...state,
+        callWillEnd: true,
+        callCancelled: true,
+        currentlyInLiveCall: false,
+      };
     case CALL_REJECT:
-      return { ...state, rejectCall: true, callWillEnd: true };
+      return {
+        ...state,
+        rejectCall: true,
+        callWillEnd: true,
+        currentlyInLiveCall: false,
+      };
     case CALL_DISCONNECTED:
-      return { ...state, leavingCall: true };
+      return {
+        ...state,
+        leavingCall: true,
+        currentlyInLiveCall: false,
+        incomingCall: false,
+      };
     case NOTIFY:
       return { ...state, notified: action.payload };
     case SET_DESCRIPTION:
@@ -128,7 +158,12 @@ export default (state = initial_state, action) => {
         callAccepted: true,
       };
     case INCOMING_ROOM_INITIATE:
-      return { ...state, canJoinRoom: true };
+      return {
+        ...state,
+        canJoinRoom: true,
+        currentlyInLiveCall: true,
+        incomingCall: true,
+      };
     default:
       return state;
   }

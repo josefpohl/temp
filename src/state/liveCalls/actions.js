@@ -25,6 +25,7 @@ import {
 } from "./types";
 import axios from "axios";
 import config from "../../config";
+import { getMyJobs } from "../../actions/jobActions";
 
 const SERVERURL = config.SERVER;
 export const getToken = () => (dispatch) => {
@@ -84,6 +85,7 @@ export const makeRoomConnect = (data) => (dispatch) => {
     payload: { roomname, skywriter: sender.available },
   });
 };
+
 export const roomInitiate = (data) => {
   console.log(`ROOM_INITIATE_ACTION ${data.roomname}`);
   return {
@@ -122,6 +124,7 @@ export const addMessage = (data) => {
 };
 
 export const skywriterArrived = (data) => {
+  console.log(`When and why???? ${JSON.stringify(data)}`);
   return {
     type: SKYWRITER_ARRIVED,
     payload: data,
@@ -175,25 +178,43 @@ export const setDescription = (description) => {
   };
 };
 
-export const saveCall = (jobData, isPreSave = false) => (dispatch) => {
-  console.log(`Saving call`);
-  if (!isPreSave) {
-    dispatch({
-      type: SAVING_LIVECALL,
-    });
-  }
-
-  const uri = SERVERURL + `/api/jobs/livecall`;
-  axios
-    .post(uri, jobData)
-    .then((res) => {
-      if (res.status === 200) {
-        console.log(`DATA is SAVED ${res.status} ${JSON.stringify(res.data)}`);
-        dispatch({
-          type: SAVED_LIVECALL,
-        });
+export const saveCall =
+  (jobData, isPreSave = false) =>
+  (dispatch) => {
+    console.log(`Saving call`);
+    if (!isPreSave) {
+      dispatch({
+        type: SAVING_LIVECALL,
+      });
+    }
+    const userid = jobData.provider;
+    const uri = SERVERURL + `/api/jobs/livecall`;
+    axios
+      .post(uri, jobData)
+      .then(async (res) => {
+        if (res.status === 200) {
+          console.log(
+            `DATA is SAVED ${res.status} ${JSON.stringify(res.data)}`
+          );
+          dispatch({
+            type: SAVED_LIVECALL,
+          });
+          if (!isPreSave) {
+            console.log(`NOT PRESAVE`);
+            const jobs = await getMyJobs(userid);
+            dispatch(jobs);
+            dispatch({
+              type: SAVING_LIVECALL,
+            });
+            dispatch({
+              type: CALL_FINISHED,
+            });
+          }
+        }
+      })
+      .catch((err) => {
+        console.log(`Error saving job ${err}`);
         if (!isPreSave) {
-          console.log(`NOT PRESAVE`);
           dispatch({
             type: SAVING_LIVECALL,
           });
@@ -201,33 +222,24 @@ export const saveCall = (jobData, isPreSave = false) => (dispatch) => {
             type: CALL_FINISHED,
           });
         }
-      }
-    })
-    .catch((err) => {
-      console.log(`Error saving job ${err}`);
-      if (!isPreSave) {
-        dispatch({
-          type: SAVING_LIVECALL,
-        });
-        dispatch({
-          type: CALL_FINISHED,
-        });
-      }
-    });
-  return new Promise((resolve) => setTimeout(resolve, 2000));
-};
+      });
+    return new Promise((resolve) => setTimeout(resolve, 2000));
+  };
 
 export const updateCall = (jobData) => (dispatch) => {
   console.log(`Updating call`);
   dispatch({
     type: SAVING_LIVECALL,
   });
+  const userid = jobData.provider;
   console.log(`JOB DATA: ${JSON.stringify(jobData)}`);
   const uri = SERVERURL + `/api/jobs/update/livecall`;
   axios
     .post(uri, jobData)
-    .then((res) => {
+    .then(async (res) => {
       console.log(`DATA is Updated ${JSON.stringify(res.status)}`);
+      const jobs = await getMyJobs(userid);
+      dispatch(jobs);
       dispatch({
         type: SAVING_LIVECALL,
       });
