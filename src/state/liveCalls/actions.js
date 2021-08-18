@@ -4,7 +4,7 @@ import {
   SET_TOKEN,
   LOADING_SKYWRITER,
   SAVED_LIVECALL,
-  ROOM_INITIATE,
+  ROOM_INITIATED,
   CALL_ACCEPTED,
   ADD_MESSAGE,
   CALL_ACCEPT,
@@ -89,7 +89,7 @@ export const makeRoomConnect = (data) => (dispatch) => {
 export const roomInitiate = (data) => {
   console.log(`ROOM_INITIATE_ACTION ${data.roomname}`);
   return {
-    type: ROOM_INITIATE,
+    type: ROOM_INITIATED,
     payload: data,
   };
 };

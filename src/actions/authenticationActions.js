@@ -134,20 +134,26 @@ export const loginUser = (emailIn, passwordIn) => (dispatch) => {
         payload: teamProfiles,
       });
       dispatch({ type: LOADING_TEAM_PROFILES });
-      return decodedToken;
+      return { decodedToken, myProfile, teamProfiles };
     })
-    .then(async (decodedToken) => {
+    .then(async ({ decodedToken, myProfile, teamProfiles }) => {
       dispatch({ type: LOADING_AVAILABILITY });
       //Get Availables for team
       const { id } = decodedToken;
       //TODO needs socket in theory at least
+
       setAvailable(decodedToken);
-      const teamAvailables = await getTeamAvailables(id);
+      const teamAvailables = await getTeamAvailables(
+        id,
+        myProfile,
+        teamProfiles
+      );
+      console.log(`All ${JSON.stringify(teamAvailables)}`);
       dispatch({
         type: SET_CURRENT_AVAILABLES,
         payload: teamAvailables,
       });
-      dispatch({ type: LOADING_AVAILABILITY });
+
       return id;
     })
     .then(async (id) => {
@@ -155,7 +161,7 @@ export const loginUser = (emailIn, passwordIn) => (dispatch) => {
       const myJobs = await getJobs(id);
       dispatch({ type: SET_JOBS, payload: myJobs });
       dispatch({ type: LOADING_JOBS });
-
+      dispatch({ type: LOADING_AVAILABILITY });
       dispatch({ type: USER_LOADING_COMPLETE });
     })
     .catch((error) => {
@@ -195,17 +201,27 @@ const setAvailable = async (decodedToken) => {
 };
 
 //Supporting login action
-const getTeamAvailables = async (userid) => {
-  const uri = config.SERVER + `/api/available/team/${userid}`;
+const getTeamAvailables = async (userid, myProfile, teamProfiles) => {
+  const uri = config.SERVER + `/api/available/allTeam/${userid}`;
   //TODO refine to users who can take calls for this team
   const teamAvailables = await axios
     .get(uri)
     .then((res) => {
       //console.log(`GET TEAM AVAILABLES: ${JSON.stringify(res.data)}`);
-      const availablesSkywriters = res.data.filter(
+      const availableSkywriters = res.data.filter(
         (a) => a.userLoggedIn?.role === "skywriter"
       );
-      return availablesSkywriters;
+      const mainTeamID = myProfile.teams[0].teamid;
+
+      const trueTeamSkywriters = filterForTeamRoles(
+        availableSkywriters,
+        mainTeamID,
+        teamProfiles
+      );
+      return trueTeamSkywriters;
+    })
+    .then((filtered) => {
+      return filtered;
     })
     .catch((err) => {
       console.log(`Cannot get availability ${err}`);
@@ -213,6 +229,21 @@ const getTeamAvailables = async (userid) => {
   return teamAvailables;
 };
 
+const filterForTeamRoles = (availableSkywriters, teamid, teamProfiles) => {
+  const avails = availableSkywriters.filter((a) => {
+    const profile = teamProfiles.find((p) => p.user._id === a.userLoggedIn._id);
+    const profileTeams = profile.teams.filter((pt) => {
+      console.log(`${pt.teamid} and ${teamid}`);
+      return pt.teamid.toString() === teamid.toString();
+    });
+    if (profileTeams.length >= 1) {
+      return profileTeams[0].role === "skywriter";
+    }
+    return false;
+    //iterate through profileTeams to find teamid match
+  });
+  return avails;
+};
 //Action
 export const logoutUser = (user) => (dispatch) => {
   const uri = config.SERVER + `/api/users/logout/${user.id}`;

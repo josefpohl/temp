@@ -70,7 +70,7 @@ export const inLiveCall = (user) => async (dispatch) => {
   });
 };
 
-export const getCurrentAvailable = (user) => async (dispatch) => {
+export const getCurrentAvailable = (user) => async (dispatch, getState) => {
   dispatch({ type: LOADING_AVAILABILITY });
   console.log(`In getCurrentAvailable ${user.name}`);
   const uri = config.SERVER + `/api/available/allTeam/${getId(user)}`;
@@ -79,10 +79,21 @@ export const getCurrentAvailable = (user) => async (dispatch) => {
     .get(uri)
     .then((res) => {
       //console.log(`GET TEAM AVAILABLES: ${JSON.stringify(res.data)}`);
-      const availablesSkywriters = res.data.filter(
+      const availableSkywriters = res.data.filter(
         (a) => a.userLoggedIn?.role === "skywriter"
       );
-      return availablesSkywriters;
+      const teamProfiles = getState().profiles.teamProfiles;
+      const myProfile = getState().profiles.userProfile;
+      const mainTeamID = myProfile.teams[0].teamid;
+      const trueTeamSkywriters = filterForTeamRoles(
+        availableSkywriters,
+        mainTeamID,
+        teamProfiles
+      );
+      return trueTeamSkywriters;
+    })
+    .then((filtered) => {
+      return filtered;
     })
     .catch((err) => {
       console.log(`Cannot get availability ${err}`);
@@ -104,3 +115,19 @@ function getId(user) {
   }
   return user.id ? user.id : user._id;
 }
+
+const filterForTeamRoles = (availableSkywriters, teamid, teamProfiles) => {
+  const avails = availableSkywriters.filter((a) => {
+    const profile = teamProfiles.find((p) => p.user._id === a.userLoggedIn._id);
+    const profileTeams = profile.teams.filter((pt) => {
+      console.log(`${pt.teamid} and ${teamid}`);
+      return pt.teamid.toString() === teamid.toString();
+    });
+    if (profileTeams.length >= 1) {
+      return profileTeams[0].role === "skywriter";
+    }
+    return false;
+    //iterate through profileTeams to find teamid match
+  });
+  return avails;
+};

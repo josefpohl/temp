@@ -6,7 +6,7 @@ import {
   CLEAR_LIVE_CALL,
   FINDING_SKYWRITER_ERROR,
   SAVED_LIVECALL,
-  ROOM_INITIATE,
+  ROOM_INITIATED,
   CALL_ACCEPTED,
   ADD_MESSAGE,
   LEAVING,
@@ -67,7 +67,7 @@ export default (state = initial_state, action) => {
       return { ...state, findingSkywriterError: true, loadingSkywriter: false };
     case SET_TOKEN:
       return { ...state, token: action.payload };
-    case ROOM_INITIATE:
+    case ROOM_INITIATED:
       return {
         ...state,
         roomname: action.payload.roomname,

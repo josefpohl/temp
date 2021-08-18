@@ -13,7 +13,7 @@ export const SET_ROOM_INFO = "SET_ROOM_INFO";
 export const SET_DESCRIPTION = "SET_DESCRIPTION";
 
 // many replicate the socket events
-export const ROOM_INITIATE = "ROOM_INITIATE";
+export const ROOM_INITIATED = "ROOM_INITIATED";
 export const CALL_ACCEPTED = "CALL_ACCEPTED";
 export const SKYWRITER_ARRIVED = "SKYWRITER_ARRIVED";
 export const LEAVING = "LEAVING";

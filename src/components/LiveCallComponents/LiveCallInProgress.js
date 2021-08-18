@@ -163,7 +163,7 @@ const LiveCallInProgress = ({
           text1: `Cancelled`,
           text2: `Your side has failed to connect to the call`,
         });
-      }, 30000);
+      }, 10000);
     }
     return () => clearTimeout(timerTO);
   }, [callAccepted]);

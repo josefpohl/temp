@@ -90,7 +90,7 @@ const HomeScreen = ({
   }, [goToAsync]);
 
   React.useEffect(() => {
-    const filtered = availables.allAvailables.filter((a) => {
+    const filtered = availables.allAvailables?.filter((a) => {
       return a.isAvailable && !a.inLiveCall;
     });
     setAvailableCount(filtered.length);
