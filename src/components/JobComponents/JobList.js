@@ -37,9 +37,6 @@ function JobList({ jobs, loadingJobs, getJobs, user }) {
       }
     />
   );
-  const handleChange = () => {
-    console.log("handle change");
-  };
   return (
     <View style={styles.container}>
       {loadingJobs ? (
@@ -69,13 +66,3 @@ const mapStateToProps = (state) => ({
   loadingJobs: state.jobs.loadingJobs,
 });
 export default connect(mapStateToProps, { getJobs })(JobList);
-
-/*
-  <JobFilter
-          handleChange={this.handleChange}
-          showLiveCalls={showLive}
-          showDictations={showDictations}
-          sortByDate={sortByDate}
-          filter={filter}
-        />
-*/

@@ -66,7 +66,6 @@ const RecorderComponent = ({
   React.useEffect(() => {
     if (isRecording) {
       setPlayerState(playerState);
-      console.log(`RECORDER: ${title} ${audioFileBase} ${audioFilePath}`);
     }
   }, []);
 
@@ -91,7 +90,6 @@ const RecorderComponent = ({
         await prepareRecordingPath(audioFileBase);
         await AudioRecorder.startRecording();
         setPlayerState(PLAYERSTATE.RECORDING);
-        console.log("Recording now");
       });
     } catch (err) {
       console.error(err);
@@ -116,7 +114,6 @@ const RecorderComponent = ({
     jobData.append("description", title);
     jobData.append("type", "audio/aac");
     jobData.append("duration", recordSecondsCounter);
-    console.log("jobData", JSON.stringify(jobData));
     dispatch(
       uploadNewJob({
         jobData,
@@ -136,7 +133,6 @@ const RecorderComponent = ({
     const audioFilePath =
       AudioUtils.DocumentDirectoryPath + "/" + audioFileBase + fileExtension;
     setAudioFilePath(audioFilePath);
-    console.log(`AudioFilePath ${audioFilePath}`);
     await AudioRecorder.prepareRecordingAtPath(audioFilePath, {
       SampleRate: 22050,
       Channels: 1,

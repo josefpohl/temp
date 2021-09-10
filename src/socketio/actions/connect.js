@@ -11,7 +11,9 @@ export function connect() {
   return {
     type: "socket",
     types: [CONNECT, CONNECT_SUCCESS, CONNECT_FAIL],
-    promise: (socket) => socket.connect(),
+    promise: (socket) => {
+      return socket.connect();
+    },
   };
 }
 

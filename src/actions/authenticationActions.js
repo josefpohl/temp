@@ -82,7 +82,6 @@ export const userLoadingComplete = () => {
 };
 //Action
 export const loginUser = (emailIn, passwordIn) => (dispatch) => {
-  console.log(`EMAIL and PASSWORD: ${emailIn} ${passwordIn}`);
   //DISPATCH CHECKING FOR TOKEN...
   //dispatch(connect());
   dispatch(onUserConnected());
@@ -148,7 +147,6 @@ export const loginUser = (emailIn, passwordIn) => (dispatch) => {
         myProfile,
         teamProfiles
       );
-      console.log(`All ${JSON.stringify(teamAvailables)}`);
       dispatch({
         type: SET_CURRENT_AVAILABLES,
         payload: teamAvailables,
@@ -167,7 +165,6 @@ export const loginUser = (emailIn, passwordIn) => (dispatch) => {
     .catch((error) => {
       //TODO Present Error and issue correction guidance
       //TODO Network detection?
-      console.log(`Error on login ${error}`);
       let content = { user: false };
       dispatch({
         type: LOGIN_USER_FAIL,
@@ -197,7 +194,6 @@ const setAvailable = async (decodedToken) => {
       return res.data;
     });
 
-  //console.log(`Available: ${JSON.stringify(available)}`);
 };
 
 //Supporting login action
@@ -207,7 +203,6 @@ const getTeamAvailables = async (userid, myProfile, teamProfiles) => {
   const teamAvailables = await axios
     .get(uri)
     .then((res) => {
-      //console.log(`GET TEAM AVAILABLES: ${JSON.stringify(res.data)}`);
       const availableSkywriters = res.data.filter(
         (a) => a.userLoggedIn?.role === "skywriter"
       );
@@ -224,7 +219,6 @@ const getTeamAvailables = async (userid, myProfile, teamProfiles) => {
       return filtered;
     })
     .catch((err) => {
-      console.log(`Cannot get availability ${err}`);
     });
   return teamAvailables;
 };
@@ -233,7 +227,6 @@ const filterForTeamRoles = (availableSkywriters, teamid, teamProfiles) => {
   const avails = availableSkywriters.filter((a) => {
     const profile = teamProfiles.find((p) => p.user._id === a.userLoggedIn._id);
     const profileTeams = profile.teams.filter((pt) => {
-      console.log(`${pt.teamid} and ${teamid}`);
       return pt.teamid.toString() === teamid.toString();
     });
     if (profileTeams.length >= 1) {

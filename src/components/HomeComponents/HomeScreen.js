@@ -42,7 +42,6 @@ const HomeScreen = ({
       setGoToLiveCall(true);
     }
     if (isRecording) {
-      console.log("Recognized Async in progress");
       setGoToAsync(true);
     }
     //console.log(`SETTING TIMER....`);
@@ -75,7 +74,7 @@ const HomeScreen = ({
 
   React.useEffect(() => {
     if (goToLiveCall) {
-      console.log("Go go gogogogogogog");
+      console.log("goToLiveCall");
       // setOnHome(false);
       navigation.navigate("LiveCall", { isSender: true, joinInProgress: true });
     }
@@ -83,7 +82,6 @@ const HomeScreen = ({
 
   React.useEffect(() => {
     if (goToAsync) {
-      console.log("Go go Async ");
       //  setOnHome(false);
       navigation.navigate("Recording");
     }
@@ -98,7 +96,7 @@ const HomeScreen = ({
 
   React.useEffect(() => {
     if (incomingCall) {
-      console.log(`INCOMING CALL`);
+      console.log(`INCOMING CALL`, incomingCall);
       threeBeeps();
       setModalVisible(true);
     }
@@ -115,14 +113,16 @@ const HomeScreen = ({
     }, 2000);
   };
   const liveDebounce = React.useCallback(
-    debounce(() => {
-      //  setOnHome(false);
+    debounce((e) => {
+      // setOnHome(false);
+      // e.stopPropagation();
       navigation.navigate("LiveCall", { isSender: true });
     }, 500),
     []
   );
 
   const rejectLiveCallIncoming = () => {
+    console.log('rejectLiveCallIncoming');
     rejectingCall({ receiver: user, sender: skywriter.userLoggedIn });
     setModalVisible(false);
     //setIncomingCall false
@@ -306,11 +306,14 @@ const mapStateToProps = (state) => ({
   isRecording: state.jobs.isRecording,
 });
 
+
 export default connect(mapStateToProps, {
   logoutUser,
   rejectingCall,
   clearLiveCall,
 })(HomeScreen);
+
+
 const styles = StyleSheet.create({
   homeContainer: {
     flex: 1,

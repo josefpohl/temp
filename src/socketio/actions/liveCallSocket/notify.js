@@ -21,7 +21,6 @@ export const alert = ({ sender, receiver }) => {
 };
 
 export const onAlert = () => (dispatch) => {
-  console.log(`On Alert listener exec`);
   const notify = (e) => {
     dispatch(notifyProvider(e));
   };

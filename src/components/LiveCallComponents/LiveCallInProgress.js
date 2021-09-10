@@ -105,33 +105,24 @@ const LiveCallInProgress = ({
   const [error, setError] = React.useState("");
   const [cancelTimeout, setCancelTimeout] = React.useState(false);
   let timer = null;
+
+  // Notify if the call was accepted and if the Skywriter has arrived
   React.useEffect(() => {
-    console.log(
-      `CALL BEING MADE INITIAL: callAccepted ${callAccepted} Audio ${audioConnected}, Sky Arrived ${skywriterHasArrived}`
-    );
-  }, []);
-  React.useEffect(() => {
-    console.log(
-      `CALL BEING MADE: callAccepted ${callAccepted} Audio ${audioConnected}, Sky Arrived ${skywriterHasArrived}`
-    );
     if (
       (skywriter &&
-        roomname &&
-        callAccepted &&
-        audioConnected &&
-        skywriterHasArrived &&
-        connected) ||
-      incomingCall
+      roomname &&
+      callAccepted &&
+      audioConnected &&
+      skywriterHasArrived &&
+      connected) || incomingCall
     ) {
       AsyncStorage.setItem("InLiveCall", "true");
-      console.log(`CLEARING TIMEOUT ON LIVE CALL`);
       clearTimeout(timer);
       timer = null;
       setCanCancel(false);
     }
 
     if (callAccepted) {
-      console.log(`LiveCallInProgress Call Accepted`);
       Toast.show({
         text1: "Call was accepted!",
         text2: `Skywriter ${skywriter.userLoggedIn.name} will be arriving shortly.`,
@@ -151,12 +142,17 @@ const LiveCallInProgress = ({
     audioConnected,
     skywriterHasArrived,
     connected,
+    incomingCall
   ]);
 
+  // Check if the call wasn't accepted to canceled it.
   React.useEffect(() => {
     let timerTO;
+    console.log('callAccepted', callAccepted);
     if (!callAccepted) {
+      console.log('CALL REJECTED1 1');
       timerTO = setTimeout(() => {
+        console.log('CALL REJECTED1 2');
         setCancelReason("Timeout");
         setCancelledCall(true);
         Toast.show({
@@ -164,26 +160,30 @@ const LiveCallInProgress = ({
           text2: `Your side has failed to connect to the call`,
         });
       }, 10000);
+      console.log('CALL REJECTED1 1 timerTO', timerTO);
     }
     return () => clearTimeout(timerTO);
   }, [callAccepted]);
 
+
   React.useEffect(() => {
     if (!callUUID) {
-      console.log("CallKeep setup/Events called");
+      console.log('No callUUID', callUUID);
       callKeepEvents();
       const newCallUUID = uuid.v4();
+      console.log('newCallUUID', callUUID);
       startCallKeep(newCallUUID, user.name);
       setCallUUID(newCallUUID);
     }
     return () => endCallKeep();
   }, []);
 
+  // Set connection with twilio
   React.useEffect(() => {
-    console.log(
-      `Connected: ${connected} and CanJoinRoom ${canJoinRoom} and In Progress ${callAlreadyInProgress}`
-    );
-    if (!connected && canJoinRoom && !callAlreadyInProgress) {
+    console.log('token --> ',token, ' roomname --> ',roomname);
+    if (!connected && canJoinRoom && !callAlreadyInProgress
+    && token && roomname) {
+
       twilioRef.current.connect({
         accessToken: token,
         roomName: roomname,
@@ -191,17 +191,38 @@ const LiveCallInProgress = ({
       });
       //twilioRef.current.setLocalAudioEnabled(true);
       setConnected(true);
-      console.log("Can now connect");
       Toast.show({
         text1: `Connected`,
         text2: `Your side has been connected to the call`,
       });
+    } else {
+      console.log('roomate does not exist, start timer');
+      let timerTO;
+      timerTO = setTimeout(() => {
+        console.log('timer is out');
+        console.log('roomname value:', roomname);
+          if (!roomname) {
+            console.log('CONNECTION FAILED');
+            setCancelReason("Connection Failed");
+            setCancelledCall(true);
+            Toast.show({
+              text1: `Cancelled`,
+              text2: `Your side has failed to connect to the call`,
+            });
+          }
+      }, 10000);
+      return () => clearTimeout(timerTO);
     }
-  }, [canJoinRoom, connected]);
+  }, [
+    canJoinRoom,
+    connected,
+    callAlreadyInProgress,
+    roomname
+  ]);
 
   React.useEffect(() => {
+    console.log('callWillEnd', callWillEnd);
     if (callWillEnd) {
-      console.log(`LEAVING due to `);
       twilioRef.current.disconnect();
       //save call
       //navigation.pop();
@@ -242,7 +263,7 @@ const LiveCallInProgress = ({
       jobData.lastModified = new Date().toISOString();
       saveCall(jobData, true); //set isPreSave
     }
-  }, [canPreSave]);
+  }, [canPreSave, callAlreadyInProgress]);
 
   const callKeepEvents = () => {
     RNCallKeep.addEventListener("answerCall", (data) => {
@@ -254,7 +275,7 @@ const LiveCallInProgress = ({
       console.log("didReceiveStartCallAction: ", handle, name, callUUID);
     });
     RNCallKeep.addEventListener("endCall", (data) => {
-      console.log("onEndCallAction");
+      console.log("onEndCallAction", data);
     });
     RNCallKeep.addEventListener("didDisplayIncomingCall", (data) => {
       let { error } = data;
@@ -273,12 +294,12 @@ const LiveCallInProgress = ({
       console.log("onDTMFAction", digits, callUUID);
     });
     RNCallKeep.addEventListener("didActivateAudioSession", (data) => {
-      console.log("audioSessionActivated");
+      console.log("audioSessionActivated", data);
     });
   };
 
   const startCallKeep = (uuid, name) => {
-    console.log(`Start call keep startCall`);
+    console.log(`Start call keep startCall`, uuid, name);
     RNCallKeep.startCall(uuid, name, name);
   };
 
@@ -295,9 +316,7 @@ const LiveCallInProgress = ({
   };
 
   const muteCall = () => {
-    console.log(`Muted changes from ${muted} to ${!muted}`);
     twilioRef.current.setLocalAudioEnabled(muted).then((isEnabled) => {
-      console.log(`Audio is now enabled: ${isEnabled}`);
       setMuted(!muted);
     });
   };
@@ -390,7 +409,6 @@ const LiveCallInProgress = ({
   const _onRoomDidConnect = (data) => {
     //{ roomName, error }
     const { roomName, error } = data;
-    console.log(`On Room Connected ${roomName} ${JSON.stringify(error)}`);
     if (error) {
       setError(JSON.stringify(error));
     }
@@ -405,7 +423,6 @@ const LiveCallInProgress = ({
   };
 
   const _onRoomDidDisconnect = ({ roomName, error }) => {
-    console.log(`Disconnect: ${roomName} Error ${JSON.stringify(error)}`);
     setError(JSON.stringify(error));
     if (error) {
       Toast.show({
@@ -424,13 +441,10 @@ const LiveCallInProgress = ({
     }
   };
   const _onRoomDidFailToConnect = (error) => {
-    console.log("[FailToConnect]ERROR: ", error);
     setError(JSON.stringify(error));
   };
 
   const _onParticipantAddedAudioTrack = ({ participant, track }) => {
-    console.log("onParticipantAddedAudioTrack: ", participant, track);
-
     setAudioTracks(
       new Map([
         ...audioTracks,
@@ -444,8 +458,6 @@ const LiveCallInProgress = ({
   };
 
   const _onParticipantRemovedAudioTrack = ({ participant, track }) => {
-    console.log("onParticipantRemovedAudioTrack: ", participant, track);
-
     const audioTracksLocal = audioTracks;
     audioTracksLocal.delete(track.trackSid);
 
@@ -457,7 +469,6 @@ const LiveCallInProgress = ({
   };
 
   const _onParticipantAddedVideoTrack = ({ participant, track }) => {
-    console.log("Remote participant adding video track", participant, track);
     setVideoTracks(
       new Map([
         ...videoTracks,
@@ -476,7 +487,6 @@ const LiveCallInProgress = ({
   };
 
   const _onParticipantRemovedVideoTrack = ({ participant, track }) => {
-    console.log("Remote participant Removing video track", participant, track);
     const videoTracksLocal = videoTracks;
     videoTracksLocal.delete(track.trackSid);
 
@@ -486,12 +496,9 @@ const LiveCallInProgress = ({
   };
 
   const _onNetworkLevelChanged = ({ participant, isLocalUser, quality }) => {
-    console.log(
-      `Participant: ${JSON.stringify(
-        participant
-      )} ${isLocalUser} Quality ${JSON.stringify(quality)}`
-    );
-
+    console.log('participant', participant);
+    console.log('isLocalUser', isLocalUser);
+    console.log('quality', quality);
     if (isLocalUser && (quality === 1 || quality === 2)) {
       //RNBeep.beep();
       Toast.show({
@@ -626,7 +633,6 @@ const LiveCallInProgress = ({
 //autoInitializeCamera={false}
 const mapStateToProps = (state) => ({
   user: state.auth.user,
-  roomname: state.livecalls.roomname,
   callAccepted: state.livecalls.callAccepted,
   canJoinRoom: state.livecalls.canJoinRoom,
   rejectCall: state.livecalls.rejectCall,

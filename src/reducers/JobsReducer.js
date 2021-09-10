@@ -39,7 +39,6 @@ export default (state = initial_state, action) => {
         audioFileBase: "",
       };
     case IN_ASYNC_RECORDING:
-      console.log(`IN_ASYNC_RECORDING ${JSON.stringify(action.payload)}`);
       return {
         ...state,
         isRecording: true,

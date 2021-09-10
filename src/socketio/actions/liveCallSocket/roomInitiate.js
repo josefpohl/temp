@@ -13,9 +13,8 @@ import { roomInitiate } from "../../../state/liveCalls";
 export const onRoomInitiate = () => (dispatch) => {
   console.log("onRoomInitiated listener exec");
   const onRoomInitiate = (data) => {
-    const { roomname, receiver, sender } = data;
     console.log(
-      `Room initiate received ${roomname}, ${receiver.name}, ${sender.name}`
+      `Room initiate received ${JSON.stringify(data)}`
     );
 
     dispatch(roomInitiate(data));

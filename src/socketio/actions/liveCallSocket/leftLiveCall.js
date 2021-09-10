@@ -35,7 +35,6 @@ export const emitLeftLiveCall = ({
 export const onLeftLiveCall = () => (dispatch, getState) => {
   console.log(`LEFT_LIVE_CALL listener exec`);
   const processLeftLiveCall = (e) => {
-    // console.log(`PROCESS LEFT_LIVE_CALL ${JSON.stringify(e)}`);
     const { teamProfiles } = getState().profiles;
     const { user } = getState().auth;
     const foundReceiverProfile = teamProfiles.find(
@@ -45,7 +44,6 @@ export const onLeftLiveCall = () => (dispatch, getState) => {
       (p) => p.user?._id === getId(e.senderUser)
     );
     if (foundReceiverProfile) {
-      // console.log(`${JSON.stringify(e)}`);
       dispatch(leftLiveCall(e.receiverUser));
     }
     if (foundSenderProfile) {

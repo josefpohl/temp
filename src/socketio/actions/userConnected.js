@@ -13,7 +13,7 @@ import {
 import { addAvailable } from "../../actions/availableActions";
 
 export function userConnected(user) {
-  console.log("userConnected function", user);
+  console.log('userConnected');
   return {
     type: "socket",
     types: [USER_CONNECTED, USER_CONNECTED_SUCCESS, USER_CONNECTED_FAIL],
@@ -22,7 +22,7 @@ export function userConnected(user) {
 }
 
 export const onUserConnected = () => (dispatch, getState) => {
-  console.log("onUserConnected listener exec");
+  console.log('onUserConnected');
   const onUserConnected = (e) => {
     const { teamProfiles, userProfile } = getState().profiles;
 
@@ -38,8 +38,6 @@ export const onUserConnected = () => (dispatch, getState) => {
     }
     if (foundProfile && teamFromSky?.role === "skywriter") {
       dispatch(addAvailable(e));
-    } else {
-      console.log(`${e.name} addition ignored`);
     }
   };
 

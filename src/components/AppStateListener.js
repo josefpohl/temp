@@ -36,6 +36,7 @@ export default function AppStateListener() {
   const [appStateVisible, setAppStateVisible] = useState(appState.current);
 
   useEffect(() => {
+    console.log('useEffect liveCallState', liveCallState);
     AppState.addEventListener("change", _handleAppStateChange);
     dispatch(connect());
     return () => {
@@ -51,16 +52,14 @@ export default function AppStateListener() {
       AsyncStorage.getItem("InLiveCall").then((value) => {
         if (value !== "true") {
           dispatch(connect());
-          console.log("App has come to the foreground!");
-          console.log(authState);
           AsyncStorage.getItem("user").then((user) => {
             if (user) {
-              //dispatch(userLoading());
+              // dispatch(userLoading()); // User loading
               AsyncStorage.getItem("inactiveTime").then((time) => {
                 const now = new Date().getTime();
                 const inactive = Number.parseInt(time);
                 const diff = now - inactive;
-                if (diff > 60 * 1000 * 15) {
+                if (diff > (60 * 1000 * 15)) {
                   dispatch(logoutUser(JSON.parse(user)));
                   Toast.show({
                     text1: "Idle time log out",
@@ -84,7 +83,6 @@ export default function AppStateListener() {
                   dispatch(onCallReject());
                   dispatch(onAlert());
                   dispatch(onRoomConnect());
-                  console.log(`GET CURRENT AVAILABLES for ${user}`);
                   dispatch(getCurrentAvailable(JSON.parse(user)));
                   // dispatch(userLoadingComplete());
                 }
@@ -104,15 +102,12 @@ export default function AppStateListener() {
           console.log(`Not in live call`);
           AsyncStorage.setItem("inactiveTime", new Date().getTime().toString());
           dispatch(disconnect());
-        } else {
-          console.log(`AppStateListener -- In Live call`);
         }
       });
     }
 
     appState.current = nextAppState;
     setAppStateVisible(appState.current);
-    console.log("AppState", appState.current);
   };
 
   return null;

@@ -18,7 +18,7 @@ import Toast from "react-native-toast-message";
 
 const HomeStack = createStackNavigator();
 const HomeStackScreen = () => (
-  <HomeStack.Navigator>
+  <HomeStack.Navigator initialRouteName="Home">
     <HomeStack.Screen
       name="Home"
       component={HomeScreen}

@@ -31,7 +31,6 @@ export default class socketAPI {
   }
 
   async emit(event, data) {
-    console.log(`EMIT: ${JSON.stringify(event)} ${JSON.stringify(data)}`);
     return new Promise((resolve, reject) => {
       // if (!this.socket) return reject("No socket connection.");
 
@@ -48,9 +47,7 @@ export default class socketAPI {
             return reject("No socket connection could be established");
           });
       }
-      console.log("Above emit...");
       return this.socket.emit(event, data, (response) => {
-        console.log("emittting");
         // Response is the optional callback that you can use with socket.io in every request. See 1 above.
         console.log("emit response", response);
         if (response.error) {

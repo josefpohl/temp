@@ -129,26 +129,15 @@ export default (state = initial_state, action) => {
       return { ...state, description: action.payload };
     case SET_ROOM_INFO:
       let preSave = false;
-      console.log(
-        `SET_ROOM_INFO REDUCER: ${JSON.stringify(
-          action.payload
-        )} ${JSON.stringify(state.skywriter)}, ${JSON.stringify(
-          state.description
-        )}`
-      );
       if (
         action.payload !== null &&
         state.skywriter !== null &&
         state.description !== ""
       ) {
-        console.log(`CAN PRESAVE!!!`);
         preSave = true;
       }
       return { ...state, roomInfo: action.payload, canPreSave: preSave };
     case INCOMING_ROOM_CONNECT:
-      console.log(
-        `INCOMING_ROOM_CONNECT Reducer IncomingCall STATE${state.incomingCall}`
-      );
       const { roomname, skywriter } = action.payload;
       return {
         ...state,

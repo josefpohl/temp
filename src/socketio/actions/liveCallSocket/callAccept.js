@@ -13,8 +13,6 @@ import {
 import { addCallAccepted } from "../../../state/liveCalls";
 
 export const callAccept = (liveCallData) => {
-  //console.log(`Call Accepted ${JSON.stringify(liveCallData)}`);
-
   return {
     type: "socket",
     types: [CALL_ACCEPT, CALL_ACCEPT_SUCCESS, CALL_ACCEPT_FAIL],
@@ -24,7 +22,6 @@ export const callAccept = (liveCallData) => {
 
 export const onCallAccept = () => (dispatch) => {
   console.log(`Incoming Call Accepted listener exec`);
-
   const onCallAccepted = (e) => {
     console.log(`Call ACCEPT RECEIVED ${JSON.stringify(e)}`);
     dispatch(addCallAccepted(e));

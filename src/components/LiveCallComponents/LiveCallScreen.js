@@ -26,6 +26,7 @@ import Toast from "react-native-toast-message";
 const LiveCallScreen = ({
   navigation,
   user,
+  roomname,
   getSkywriter,
   getToken,
   roomConnect,
@@ -54,6 +55,7 @@ const LiveCallScreen = ({
   const [joining, setJoining] = React.useState(false);
 
   const makeSaveCall = () => {
+    console.log('makeSaveCall --> skywriter', skywriter);
     let jobData = {};
     jobData.description = livecalls.description;
     jobData.skywriter = skywriter.userLoggedIn._id
@@ -71,13 +73,6 @@ const LiveCallScreen = ({
   };
 
   React.useEffect(() => {
-    console.log(`Checking join in progress`);
-    if (route.params.joinInProgress) {
-      console.log(`Joining in progress call... ${JSON.stringify(livecalls)}`);
-    }
-  }, []);
-
-  React.useEffect(() => {
     // get skywriter,
     // get token,
     // join Room...
@@ -85,11 +80,7 @@ const LiveCallScreen = ({
     if (!joining && !route.params.joinInProgress) {
       AsyncStorage.setItem("InLiveCall", "true");
       getToken();
-      incomingCall
-        ? console.log(
-            `Incoming Call - NO Get skywriter needed ${skywriter.userLoggedIn.name}`
-          )
-        : getSkywriter(user);
+      incomingCall ? null : getSkywriter(user);
       setDescription(
         "Live call session at " + moment().format("M/D/YYYY [at] h:mm:ss")
       );
@@ -97,32 +88,19 @@ const LiveCallScreen = ({
     }
   }, []);
 
+  // validate if the skywriter and token exists to be able to move forward to the other screen
   React.useEffect(() => {
-    console.log("SKYWRITER");
-    if (skywriter !== null) {
-      setCanjoin(true && token);
+    if (skywriter !== null && token !== null) {
+      setCanjoin(true && skywriter && token);
     }
-  }, [skywriter]);
+  }, [skywriter, token]);
+
 
   React.useEffect(() => {
-    if (token !== null) {
-      console.log("TOKEN");
-      setCanjoin(true && skywriter);
-    }
-  }, [token]);
-
-  React.useEffect(() => {
-    console.log("CAN JOIN");
     if (canjoin) {
-      if (route.params.joinInProgress) {
-        console.log(`Auto join call in progress`);
-      } else if (!incomingCall) {
-        console.log(
-          `CALL BEING MADE LIVE CALL SCREEN: callAccepted ${livecalls.callAccepted} , Sky Arrived ${livecalls.skywriterHasArrived}`
-        );
+      if (!incomingCall) {
         roomConnect(user, skywriter.userLoggedIn);
       } else {
-        console.log("NEED TO JOIN ROOM AND ACCEPT");
         //set canJoinRoom
         // emit accept
         initiateIncomingJoin();
@@ -130,21 +108,12 @@ const LiveCallScreen = ({
       }
 
       setJoining(true); //Update on RoomInitiate
-      if (route.params.joinInProgress) {
-        console.log(`After set joining to true ${JSON.stringify(livecalls)}`);
-        console.log(
-          `SKYWRITER ${JSON.stringify(skywriter)} ${JSON.stringify(
-            livecalls.skywriter
-          )}`
-        );
-      }
     }
     //return () => setCanjoin(false);
   }, [canjoin]);
 
   React.useEffect(() => {
     if (leavingCall) {
-      console.log(`LEAVING CALL ${JSON.stringify(user.name)}`);
       AsyncStorage.removeItem("InLiveCall");
       setJoining(false);
       setInitialize("Leaving Call");
@@ -162,20 +131,17 @@ const LiveCallScreen = ({
 
   React.useEffect(() => {
     if (callFinished) {
-      console.log(`FINISHING CALL invoked`);
-
       //  setTimeout(() => {
       getCurrentAvailable(user);
-      console.log(`FINISHING CALL`);
       clearLiveCall();
       navigation.pop();
       //}, 1000);
     }
   }, [callFinished]);
-
   return joining ? (
     <LiveCallInProgress
       token={token}
+      roomname={roomname}
       navigation={navigation}
       skywriter={skywriter ? skywriter : livecalls.skywriter}
       callAlreadyInProgress={
@@ -193,6 +159,7 @@ const mapStateToProps = (state) => ({
   token: state.livecalls.token,
   leavingCall: state.livecalls.leavingCall,
   livecalls: state.livecalls,
+  roomname: state.livecalls.roomname,
   savingCallInProgress: state.livecalls.savingCallInProgress,
   callFinished: state.livecalls.callFinished,
   incomingCall: state.livecalls.incomingCall,

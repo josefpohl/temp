@@ -53,7 +53,6 @@ export const livecall_cancelled = () => {
 };
 
 export const ignoreIncomingCall = (ignore) => {
-  console.log("IGNORE_INCOMINGCALL", ignore);
   return {
     type: IGNORE_INCOMINGCALL,
     payload: ignore,
@@ -61,7 +60,6 @@ export const ignoreIncomingCall = (ignore) => {
 };
 
 export const ignoreAllCalls = (ignore) => {
-  console.log("IGNORE_ALL_CALLS", ignore);
   return {
     type: IGNORE_ALL_CALLS,
     payload: ignore,

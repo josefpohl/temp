@@ -5,9 +5,6 @@ import { ActivityIndicator, Colors } from "react-native-paper";
 const LiveCallSplashScreen = ({
   text,
   headerText,
-  user,
-  skywriter,
-  roomname,
 }) => {
   return (
     <View style={styles.splashContatiner}>
