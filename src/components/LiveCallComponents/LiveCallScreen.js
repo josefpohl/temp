@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, Button, Text } from "react-native";
+import { StyleSheet } from "react-native";
 import { connect } from "react-redux";
 import moment from "moment";
 import AsyncStorage from "@react-native-community/async-storage";
@@ -10,18 +10,16 @@ import {
   getSkywriter,
   getToken,
   clearLiveCall,
-  saveCall,
   setDescription,
-  updateCall,
   initiateIncomingJoin,
 } from "../../state/liveCalls";
-
 import {
   roomConnect,
   callAccept,
   emitLeftLiveCall,
 } from "../../socketio/actions/liveCallSocket";
 import Toast from "react-native-toast-message";
+import { useDispatch } from "react-redux";
 
 const LiveCallScreen = ({
   navigation,
@@ -37,8 +35,6 @@ const LiveCallScreen = ({
   clearLiveCall,
   emitLeftLiveCall,
   livecalls,
-  saveCall,
-  updateCall,
   callFinished,
   route,
   setDescription,
@@ -46,35 +42,19 @@ const LiveCallScreen = ({
   initiateIncomingJoin,
   getCurrentAvailable,
 }) => {
+  const dispatch = useDispatch();
   let [initialize, setInitialize] = React.useState(
     "Initializing your call with a skywriter"
   );
-  let [subText, setSubText] = React.useState("Loading");
+  let [subText] = React.useState("Loading");
 
   const [canjoin, setCanjoin] = React.useState(false);
   const [joining, setJoining] = React.useState(false);
 
-  const makeSaveCall = () => {
-    console.log('makeSaveCall --> skywriter', skywriter);
-    let jobData = {};
-    jobData.description = livecalls.description;
-    jobData.skywriter = skywriter.userLoggedIn._id
-      ? skywriter.userLoggedIn._id
-      : skywriter.id;
-    jobData.provider = user._id ? user._id : user.id;
-    jobData.roomInfo = livecalls.roomInfo;
-    jobData.lastModified = new Date().toISOString();
-    if (livecalls.savedLiveCall) {
-      updateCall(jobData);
-    } else {
-      saveCall(jobData); //.then(() => {
-    }
-    console.log(`SAVING CALL`);
-  };
 
   React.useEffect(() => {
-    // get skywriter,
-    // get token,
+    // emit get skywriter,
+    // emit get token,
     // join Room...
     console.log("INITIALIZE");
     if (!joining && !route.params.joinInProgress) {
@@ -95,47 +75,43 @@ const LiveCallScreen = ({
     }
   }, [skywriter, token]);
 
-
   React.useEffect(() => {
     if (canjoin) {
       if (!incomingCall) {
         roomConnect(user, skywriter.userLoggedIn);
       } else {
-        //set canJoinRoom
-        // emit accept
+        // set canJoinRoom and emit accept
         initiateIncomingJoin();
         callAccept({ receiver: user, sender: skywriter.userLoggedIn });
       }
 
       setJoining(true); //Update on RoomInitiate
     }
-    //return () => setCanjoin(false);
   }, [canjoin]);
 
   React.useEffect(() => {
     if (leavingCall) {
+      console.log('LEAVING CALL');
       AsyncStorage.removeItem("InLiveCall");
       setJoining(false);
       setInitialize("Leaving Call");
-      setSubText("Saving and refreshing content");
       emitLeftLiveCall({
         sender: user,
         receiver: livecalls.skywriter.userLoggedIn,
         roomname: livecalls.roomname,
         terminatedBySender: livecalls.isSender,
       });
-
-      makeSaveCall();
+      dispatch({
+        type: 'CALL_FINISHED',
+      });
     }
   }, [leavingCall]);
 
   React.useEffect(() => {
     if (callFinished) {
-      //  setTimeout(() => {
       getCurrentAvailable(user);
       clearLiveCall();
       navigation.pop();
-      //}, 1000);
     }
   }, [callFinished]);
   return joining ? (
@@ -173,8 +149,6 @@ export default connect(mapStateToProps, {
   clearLiveCall,
   emitLeftLiveCall,
   setDescription,
-  saveCall,
-  updateCall,
   initiateIncomingJoin,
   getCurrentAvailable,
 })(LiveCallScreen);

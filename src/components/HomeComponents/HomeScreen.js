@@ -30,9 +30,6 @@ const HomeScreen = ({
   const [goToLiveCall, setGoToLiveCall] = React.useState(false);
   const [goToAsync, setGoToAsync] = React.useState(false);
 
-  //const [onHome, setOnHome] = React.useState(false);
-
-  let timer = null;
   React.useEffect(() => {
     console.log(
       `IN LIVE CALL ${currentlyInLiveCall} ${JSON.stringify(skywriter)}`
@@ -41,48 +38,21 @@ const HomeScreen = ({
       console.log("Recognized live call in progress.");
       setGoToLiveCall(true);
     }
+
     if (isRecording) {
       setGoToAsync(true);
     }
-    //console.log(`SETTING TIMER....`);
-
-    // const focused = navigation.addListener(`focus`, () => {
-    //   setOnHome(true);
-
-    //   console.log(`HOME SCREEN HAS FOCUS...`);
-    // });
-    // return focused;
   }, []);
-
-  // React.useEffect(() => {
-  //   let timer;
-  //   if (onHome) {
-  //     timer = setTimeout(() => {
-  //       RNBeep.beep();
-  //       Toast.show({
-  //         text1: "Idle timeout",
-  //         text2: "Logging you out of the application",
-  //       });
-  //       logoutUser(user);
-  //     }, 60 * 1000 * 15);
-  //   }
-  //   return () => {
-  //     console.log(`clearing TIMEOUT`);
-  //     clearTimeout(timer);
-  //   };
-  // }, [onHome]);
 
   React.useEffect(() => {
     if (goToLiveCall) {
       console.log("goToLiveCall");
-      // setOnHome(false);
       navigation.navigate("LiveCall", { isSender: true, joinInProgress: true });
     }
   }, [goToLiveCall]);
 
   React.useEffect(() => {
     if (goToAsync) {
-      //  setOnHome(false);
       navigation.navigate("Recording");
     }
   }, [goToAsync]);

@@ -29,7 +29,6 @@ import {
 import {
   callCancelled,
   leaving,
-  onLeaving,
   alert,
   message,
 } from "../../socketio/actions/liveCallSocket/";
@@ -47,43 +46,35 @@ import {
   addMessage,
   setRoomInformation,
   saveCall,
-  skywriterArrived,
+  updateCall
 } from "../../state/liveCalls";
 
 import Chat from "./Chat";
 import RNBeep from "react-native-a-beep";
 
 const LiveCallInProgress = ({
-  navigation,
   token,
-  accepted,
   skywriter,
   user,
   roomname,
-  provider,
   isSender,
   callCancelled,
   callAccepted,
   canJoinRoom,
   leaving,
-  rejectCall,
-  message,
   callWillEnd,
   afterCallDisconnect,
   alert,
   notified,
   resetNotifyProvider,
-  messages,
-  addMessage,
-  canPreSave,
   saveCall,
+  updateCall,
   description,
   setRoomInformation,
   roomInfo,
   callAlreadyInProgress,
   livecalls,
   skywriterHasArrived,
-  currentlyInLiveCall,
   incomingCall,
 }) => {
   const twilioRef = React.useRef(null);
@@ -103,7 +94,7 @@ const LiveCallInProgress = ({
   );
   const [networkQuality, setNetworkQuality] = React.useState(5);
   const [error, setError] = React.useState("");
-  const [cancelTimeout, setCancelTimeout] = React.useState(false);
+  // const [cancelTimeout, setCancelTimeout] = React.useState(false);
   let timer = null;
 
   // Notify if the call was accepted and if the Skywriter has arrived
@@ -135,6 +126,8 @@ const LiveCallInProgress = ({
         text2: `We are joining your call.`,
       });
     }
+
+
   }, [
     skywriter,
     roomname,
@@ -145,22 +138,18 @@ const LiveCallInProgress = ({
     incomingCall
   ]);
 
-  // Check if the call wasn't accepted to canceled it.
+  // A 10-second timer is triggered to cancel the call if is not answered
   React.useEffect(() => {
     let timerTO;
-    console.log('callAccepted', callAccepted);
     if (!callAccepted) {
-      console.log('CALL REJECTED1 1');
       timerTO = setTimeout(() => {
-        console.log('CALL REJECTED1 2');
         setCancelReason("Timeout");
         setCancelledCall(true);
         Toast.show({
-          text1: `Cancelled`,
-          text2: `Your side has failed to connect to the call`,
+          text1: 'Cancelled',
+          text2: 'The call was not answered.',
         });
       }, 10000);
-      console.log('CALL REJECTED1 1 timerTO', timerTO);
     }
     return () => clearTimeout(timerTO);
   }, [callAccepted]);
@@ -168,10 +157,8 @@ const LiveCallInProgress = ({
 
   React.useEffect(() => {
     if (!callUUID) {
-      console.log('No callUUID', callUUID);
       callKeepEvents();
       const newCallUUID = uuid.v4();
-      console.log('newCallUUID', callUUID);
       startCallKeep(newCallUUID, user.name);
       setCallUUID(newCallUUID);
     }
@@ -189,11 +176,11 @@ const LiveCallInProgress = ({
         roomName: roomname,
         enableNetworkQualityReporting: true,
       });
-      //twilioRef.current.setLocalAudioEnabled(true);
+      twilioRef.current.setLocalAudioEnabled(true); // enable audio
       setConnected(true);
       Toast.show({
-        text1: `Connected`,
-        text2: `Your side has been connected to the call`,
+        text1: 'Connected',
+        text2: 'Your side has been connected to the call',
       });
     } else {
       console.log('roomate does not exist, start timer');
@@ -225,7 +212,6 @@ const LiveCallInProgress = ({
     if (callWillEnd) {
       twilioRef.current.disconnect();
       //save call
-      //navigation.pop();
       afterCallDisconnect();
     }
   }, [callWillEnd]);
@@ -249,10 +235,22 @@ const LiveCallInProgress = ({
     resetNotifyProvider();
   }, [notified]);
 
+  /**
+    Here we make sure that the call will be saved once:
+    - The Skywriter exists and arrived
+    - Room is connected
+    - Check if the call hasn't been saved to avoid duplicates
+    - The call was accepted
+    - And the provider is already in call (as double check)
+  **/
   React.useEffect(() => {
-    if (canPreSave && !callAlreadyInProgress) {
-      console.log(`SAVING CALL FROM LIVECALL IN PROGRESS -- PRE-SAVE`);
-      //CONSIDER MOVING THIS TO HOOK
+    if (skywriter &&
+        skywriterHasArrived &&
+        connected &&
+        livecalls.callAccepted &&
+        !livecalls.savedLiveCall &&
+        livecalls.currentlyInLiveCall) {
+      console.log('SAVE CALL METHOD SHOULD BE CALLED');
       let jobData = {};
       jobData.description = description;
       jobData.skywriter = skywriter.userLoggedIn._id
@@ -261,9 +259,15 @@ const LiveCallInProgress = ({
       jobData.provider = user._id ? user._id : user.id;
       jobData.roomInfo = roomInfo;
       jobData.lastModified = new Date().toISOString();
-      saveCall(jobData, true); //set isPreSave
+      saveCall(jobData, true);
     }
-  }, [canPreSave, callAlreadyInProgress]);
+  }, [
+    skywriter,
+    livecalls,
+    skywriterHasArrived,
+    connected,
+    callAlreadyInProgress
+  ]);
 
   const callKeepEvents = () => {
     RNCallKeep.addEventListener("answerCall", (data) => {
@@ -496,9 +500,6 @@ const LiveCallInProgress = ({
   };
 
   const _onNetworkLevelChanged = ({ participant, isLocalUser, quality }) => {
-    console.log('participant', participant);
-    console.log('isLocalUser', isLocalUser);
-    console.log('quality', quality);
     if (isLocalUser && (quality === 1 || quality === 2)) {
       //RNBeep.beep();
       Toast.show({
@@ -638,9 +639,7 @@ const mapStateToProps = (state) => ({
   rejectCall: state.livecalls.rejectCall,
   callWillEnd: state.livecalls.callWillEnd,
   notified: state.livecalls.notified,
-  messages: state.livecalls.messages,
   isSender: state.livecalls.isSender,
-  canPreSave: state.livecalls.canPreSave,
   description: state.livecalls.description,
   roomInfo: state.livecalls.roomInfo,
   currentlyInLiveCall: state.livecalls.currentlyInLiveCall,
@@ -658,6 +657,7 @@ export default connect(mapStateToProps, {
   message,
   addMessage,
   saveCall,
+  updateCall,
   setRoomInformation,
 })(LiveCallInProgress);
 const styles = StyleSheet.create({

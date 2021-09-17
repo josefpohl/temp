@@ -197,9 +197,6 @@ export const saveCall =
             dispatch({
               type: SAVING_LIVECALL,
             });
-            dispatch({
-              type: CALL_FINISHED,
-            });
           }
         }
       })
@@ -207,9 +204,6 @@ export const saveCall =
         if (!isPreSave) {
           dispatch({
             type: SAVING_LIVECALL,
-          });
-          dispatch({
-            type: CALL_FINISHED,
           });
         }
       });
@@ -233,17 +227,11 @@ export const updateCall = (jobData) => (dispatch) => {
       dispatch({
         type: SAVING_LIVECALL,
       });
-      dispatch({
-        type: CALL_FINISHED,
-      });
     })
     .catch((err) => {
       console.log(`Error on updating CALL ${err}`);
       dispatch({
         type: SAVING_LIVECALL,
-      });
-      dispatch({
-        type: CALL_FINISHED,
       });
     });
   return new Promise((resolve) => setTimeout(resolve, 2000));

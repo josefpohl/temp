@@ -59,7 +59,7 @@ export default function AppStateListener() {
                 const now = new Date().getTime();
                 const inactive = Number.parseInt(time);
                 const diff = now - inactive;
-                if (diff > (60 * 1000 * 15)) {
+                if (diff > (60 * 1000 * 1)) {
                   dispatch(logoutUser(JSON.parse(user)));
                   Toast.show({
                     text1: "Idle time log out",

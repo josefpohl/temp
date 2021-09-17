@@ -78,6 +78,7 @@ class Player extends React.Component {
   };
 
   playComplete = (success) => {
+    console.log('this.sound 1', this.sound);
     if (this.sound) {
       if (success) {
         console.log("Successfully finished playing");

@@ -17,7 +17,10 @@ export function userConnected(user) {
   return {
     type: "socket",
     types: [USER_CONNECTED, USER_CONNECTED_SUCCESS, USER_CONNECTED_FAIL],
-    promise: (socket) => socket.emit(USER_CONNECTED, user),
+    promise: (socket) => {
+      console.log('userConnected --> socket', socket);
+      return socket.emit(USER_CONNECTED, user);
+    },
   };
 }
 
