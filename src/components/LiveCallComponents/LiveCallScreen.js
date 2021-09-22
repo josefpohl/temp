@@ -56,7 +56,7 @@ const LiveCallScreen = ({
     // emit get skywriter,
     // emit get token,
     // join Room...
-    console.log("INITIALIZE");
+    console.log("INITIALIZE", incomingCall);
     if (!joining && !route.params.joinInProgress) {
       AsyncStorage.setItem("InLiveCall", "true");
       getToken();
@@ -75,9 +75,13 @@ const LiveCallScreen = ({
     }
   }, [skywriter, token]);
 
+
+  /**
+   * We validate if the user and skywriter exist before emit the roomConnect Action
+   */
   React.useEffect(() => {
     if (canjoin) {
-      if (!incomingCall) {
+      if (!incomingCall && skywriter && user) {
         roomConnect(user, skywriter.userLoggedIn);
       } else {
         // set canJoinRoom and emit accept
@@ -87,7 +91,7 @@ const LiveCallScreen = ({
 
       setJoining(true); //Update on RoomInitiate
     }
-  }, [canjoin]);
+  }, [canjoin, incomingCall]);
 
   React.useEffect(() => {
     if (leavingCall) {
@@ -114,6 +118,8 @@ const LiveCallScreen = ({
       navigation.pop();
     }
   }, [callFinished]);
+
+
   return joining ? (
     <LiveCallInProgress
       token={token}

@@ -89,10 +89,10 @@ const LiveCallInProgress = ({
   const [showScreenShare, setShowScreenShare] = React.useState(false);
   const [callUUID, setCallUUID] = React.useState();
   const [audioConnected, setAudioConnected] = React.useState(false);
-  const [announcements, setAnnouncements] = React.useState(
-    "Connecting to your call"
-  );
+  const [announcements, setAnnouncements] = React.useState("");
+  const [subAnnouncements, setSubAnnouncements] = React.useState("");
   const [networkQuality, setNetworkQuality] = React.useState(5);
+  const [callSuccessfulyConnected, seIsCallConnected] = React.useState(false);
   const [error, setError] = React.useState("");
   // const [cancelTimeout, setCancelTimeout] = React.useState(false);
   let timer = null;
@@ -105,7 +105,8 @@ const LiveCallInProgress = ({
       callAccepted &&
       audioConnected &&
       skywriterHasArrived &&
-      connected) || incomingCall
+      connected &&
+      callSuccessfulyConnected) || incomingCall
     ) {
       AsyncStorage.setItem("InLiveCall", "true");
       clearTimeout(timer);
@@ -135,7 +136,8 @@ const LiveCallInProgress = ({
     audioConnected,
     skywriterHasArrived,
     connected,
-    incomingCall
+    incomingCall,
+    callSuccessfulyConnected
   ]);
 
   // A 10-second timer is triggered to cancel the call if is not answered
@@ -170,12 +172,13 @@ const LiveCallInProgress = ({
     console.log('token --> ',token, ' roomname --> ',roomname);
     if (!connected && canJoinRoom && !callAlreadyInProgress
     && token && roomname) {
-
+      setAnnouncements("Connecting to your call")
       twilioRef.current.connect({
         accessToken: token,
         roomName: roomname,
         enableNetworkQualityReporting: true,
       });
+      seIsCallConnected(true);
       twilioRef.current.setLocalAudioEnabled(true); // enable audio
       setConnected(true);
       Toast.show({
@@ -183,21 +186,23 @@ const LiveCallInProgress = ({
         text2: 'Your side has been connected to the call',
       });
     } else {
-      console.log('roomate does not exist, start timer');
+      /**
+       * Add timer to let provider know that the app is doing something
+       */
       let timerTO;
-      timerTO = setTimeout(() => {
-        console.log('timer is out');
-        console.log('roomname value:', roomname);
-          if (!roomname) {
-            console.log('CONNECTION FAILED');
-            setCancelReason("Connection Failed");
-            setCancelledCall(true);
-            Toast.show({
-              text1: `Cancelled`,
-              text2: `Your side has failed to connect to the call`,
-            });
-          }
-      }, 10000);
+      setAnnouncements("Getting Call Information");
+      setTimeout(() => {
+        setSubAnnouncements("it's taking more than usual, please wait")
+      }, 20000)
+
+      /**
+       * Trigger message to let the provider know that the call failed to connect
+       */
+      setTimeout(() => {
+        setAnnouncements("");
+        setSubAnnouncements("");
+        setError("Error: Your side failed to connect to the call");
+      }, 40000)
       return () => clearTimeout(timerTO);
     }
   }, [
@@ -206,6 +211,10 @@ const LiveCallInProgress = ({
     callAlreadyInProgress,
     roomname
   ]);
+
+  React.useEffect(() => {
+    if (!skywriterHasArrived) setAnnouncements("Waiting for skywriter")
+  }, [skywriterHasArrived])
 
   React.useEffect(() => {
     console.log('callWillEnd', callWillEnd);
@@ -327,14 +336,19 @@ const LiveCallInProgress = ({
 
   const cancelButton = (
     <View>
-      <ActivityIndicator
-        animating={true}
-        colors={Colors.white}
-        size={"large"}
-      />
-      <Text style={{ fontSize: 36, color: "#fff" }}>{announcements}</Text>
+      {
+        !error && (
+          <ActivityIndicator
+            animating={true}
+            colors={Colors.white}
+            size={"large"}
+          />
+        )
+      }
+      <Text style={{ fontSize: 36, color: "#fff", textAlign: "center" }}>{announcements}</Text>
+      <Text style={{ fontSize: 25, color: "#fff", textAlign: "center" }}>{subAnnouncements}</Text>
       <Text style={{ fontSize: 35, color: "red" }}>{error}</Text>
-      {callAccepted ? null : (
+      {callSuccessfulyConnected ? null : (
         <Button
           raised
           mode="contained"
@@ -413,6 +427,7 @@ const LiveCallInProgress = ({
   const _onRoomDidConnect = (data) => {
     //{ roomName, error }
     const { roomName, error } = data;
+    console.log('_onRoomDidConnect roomName', roomName);
     if (error) {
       setError(JSON.stringify(error));
     }
@@ -423,7 +438,6 @@ const LiveCallInProgress = ({
       participant: data.localParticipant.identity,
     };
     setRoomInformation(roomInfo);
-    setAnnouncements("Waiting for skywriter");
   };
 
   const _onRoomDidDisconnect = ({ roomName, error }) => {
