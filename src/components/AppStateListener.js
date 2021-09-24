@@ -51,15 +51,15 @@ export default function AppStateListener() {
     ) {
       AsyncStorage.getItem("InLiveCall").then((value) => {
         if (value !== "true") {
+          dispatch(userLoading()); // User loading
           dispatch(connect());
           AsyncStorage.getItem("user").then((user) => {
             if (user) {
-              // dispatch(userLoading()); // User loading
               AsyncStorage.getItem("inactiveTime").then((time) => {
                 const now = new Date().getTime();
                 const inactive = Number.parseInt(time);
                 const diff = now - inactive;
-                if (diff > (60 * 1000 * 1)) {
+                if (diff > (60 * 1000 * 15)) {
                   dispatch(logoutUser(JSON.parse(user)));
                   Toast.show({
                     text1: "Idle time log out",
@@ -70,7 +70,8 @@ export default function AppStateListener() {
                 } else {
                   dispatch(userConnected(JSON.parse(user)));
                   //re-initialize all other events...
-                  dispatch(onUserConnected());
+                  // with onUserDisconnected check if socket is connected (user have socketId)
+                  dispatch(onUserConnected(2));
                   dispatch(onUserDisconnected());
                   dispatch(onRoomInitiate());
                   dispatch(onCallAccept());
