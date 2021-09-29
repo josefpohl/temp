@@ -12,6 +12,11 @@ import {
 
 import { addAvailable } from "../../actions/availableActions";
 
+import {
+  logoutUser,
+  userLoadingComplete
+} from "../../actions/authenticationActions";
+
 export function userConnected(user) {
   console.log('userConnected');
   return {
@@ -23,10 +28,20 @@ export function userConnected(user) {
     },
   };
 }
-
-export const onUserConnected = () => (dispatch, getState) => {
+// added socket control to prevent loading screen showing on login dispatch
+export const onUserConnected = (socketControl) => (dispatch, getState) => {
   console.log('onUserConnected');
   const onUserConnected = (e) => {
+    // socketControl == 2, means is a dispatch from active-inactive-background state flow
+    if (socketControl == 2) {
+      // check if the user have a socketId, if exists then show home screen
+      if (e.socketId) {
+        dispatch(userLoadingComplete());
+      } else {
+        // if socket is not connected then logout the user
+        dispatch(logoutUser(e));
+      }
+    }
     const { teamProfiles, userProfile } = getState().profiles;
 
     const foundProfile = teamProfiles.find((p) => p.user?._id === e.id);
