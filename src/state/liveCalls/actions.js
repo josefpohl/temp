@@ -33,8 +33,7 @@ export const getToken = () => (dispatch) => {
 
   const uri = SERVERURL + "/api/twilio/token";
   axios.get(uri).then((results) => {
-    const { identity, token } = results.data;
-    console.log(`Getting Token ${identity} ${token}`);
+    const { token } = results.data;
     dispatch({
       type: SET_TOKEN,
       payload: token,
@@ -48,20 +47,16 @@ export const getSkywriter = (user) => (dispatch) => {
   dispatch({
     type: LOADING_SKYWRITER,
   });
-  //console.log(`User making request ${JSON.stringify(user)}`);
   const uri = SERVERURL + `/api/available/team/${user.id}`;
   axios
     .get(uri)
     .then((res) => {
-      //  console.log(`GET SKYWRITER ${JSON.stringify(res.data)}`);
       let skywriter = null;
       if (res.data.length > 0) {
         const skywriters = res.data;
         const sorted = skywriters.sort((a, b) => sortByLastCall(a, b));
         skywriter = sorted[0];
       }
-      // setTimeout(
-      //   () =>
       dispatch({
         type: SET_SKYWRITER_IN_CALL,
         payload: skywriter,
@@ -69,6 +64,7 @@ export const getSkywriter = (user) => (dispatch) => {
       return skywriter;
     })
     .catch((error) => {
+      console.log('ERROR getSkywriter --> ',error);
       dispatch({
         type: SET_SKYWRITER_IN_CALL,
         payload: null,
@@ -77,7 +73,6 @@ export const getSkywriter = (user) => (dispatch) => {
 };
 
 export const makeRoomConnect = (data) => (dispatch) => {
-  console.log(`Make Room Connection ${JSON.stringify(data)}`);
   const { roomname, receiver, sender } = data;
   //INCOMING_ROOM_CONNECT
   dispatch({
@@ -87,7 +82,6 @@ export const makeRoomConnect = (data) => (dispatch) => {
 };
 
 export const roomInitiate = (data) => {
-  console.log(`ROOM_INITIATE_ACTION ${data.roomname}`);
   return {
     type: ROOM_INITIATED,
     payload: data,
@@ -95,7 +89,6 @@ export const roomInitiate = (data) => {
 };
 
 export const initiateIncomingJoin = () => {
-  console.log(`INCOMING ROOM_INITIATE `);
   return {
     type: INCOMING_ROOM_INITIATE,
   };
@@ -108,7 +101,6 @@ export const setIsSender = ({ isSender }) => {
 };
 
 export const addCallAccepted = (data) => {
-  //console.log(`CALL ACCEPTED ACTION ${JSON.stringify(data)}`);
   return {
     type: CALL_ACCEPTED,
     payload: data,
@@ -116,7 +108,6 @@ export const addCallAccepted = (data) => {
 };
 
 export const addMessage = (data) => {
-  //console.log(`MESSAGE RECEIVED ${JSON.stringify(data)}`);
   return {
     type: ADD_MESSAGE,
     payload: data,
@@ -124,7 +115,7 @@ export const addMessage = (data) => {
 };
 
 export const skywriterArrived = (data) => {
-  console.log(`When and why???? ${JSON.stringify(data)}`);
+  console.log(`skywriterArrived --> When and why???? ${JSON.stringify(data)}`);
   return {
     type: SKYWRITER_ARRIVED,
     payload: data,
@@ -132,7 +123,7 @@ export const skywriterArrived = (data) => {
 };
 
 export const leavingCall = (data) => {
-  // console.log(`PARTICIPANT LEAVING ACTION`); //${JSON.stringify(data)}`);
+  console.log(`leavingCall --> When and why???? ${JSON.stringify(data)}`);
   return {
     type: LEAVING,
     payload: data,
@@ -146,10 +137,10 @@ export const cancelCall = () => {
 };
 
 export const notifyProvider = (sender) => {
+  console.log('notifyProvider', sender);
   let senderName = null;
   if (sender.name) {
     senderName = sender.name;
-    //console.log(`Notify Provider ${JSON.stringify(sender)}`);
     return {
       type: NOTIFY,
       payload: senderName,
@@ -194,32 +185,25 @@ export const saveCall =
       .then(async (res) => {
         if (res.status === 200) {
           console.log(
-            `DATA is SAVED ${res.status} ${JSON.stringify(res.data)}`
+            `DATA CALL is SAVED ${res.status} ${JSON.stringify(res.data)}`
           );
           dispatch({
             type: SAVED_LIVECALL,
           });
           if (!isPreSave) {
-            console.log(`NOT PRESAVE`);
+            console.log(`NOT PRESAVE CALL`);
             const jobs = await getMyJobs(userid);
             dispatch(jobs);
             dispatch({
               type: SAVING_LIVECALL,
             });
-            dispatch({
-              type: CALL_FINISHED,
-            });
           }
         }
       })
       .catch((err) => {
-        console.log(`Error saving job ${err}`);
         if (!isPreSave) {
           dispatch({
             type: SAVING_LIVECALL,
-          });
-          dispatch({
-            type: CALL_FINISHED,
           });
         }
       });
@@ -232,28 +216,22 @@ export const updateCall = (jobData) => (dispatch) => {
     type: SAVING_LIVECALL,
   });
   const userid = jobData.provider;
-  console.log(`JOB DATA: ${JSON.stringify(jobData)}`);
+  console.log(`CALL DATA: ${JSON.stringify(jobData)}`);
   const uri = SERVERURL + `/api/jobs/update/livecall`;
   axios
     .post(uri, jobData)
     .then(async (res) => {
-      console.log(`DATA is Updated ${JSON.stringify(res.status)}`);
+      console.log(`DATA CALL is Updated ${JSON.stringify(res.status)}`);
       const jobs = await getMyJobs(userid);
       dispatch(jobs);
       dispatch({
         type: SAVING_LIVECALL,
       });
-      dispatch({
-        type: CALL_FINISHED,
-      });
     })
     .catch((err) => {
-      console.log(`Error on updating job ${err}`);
+      console.log(`Error on updating CALL ${err}`);
       dispatch({
         type: SAVING_LIVECALL,
-      });
-      dispatch({
-        type: CALL_FINISHED,
       });
     });
   return new Promise((resolve) => setTimeout(resolve, 2000));
@@ -266,7 +244,6 @@ export const clearLiveCall = () => (dispatch) => {
 };
 
 export const terminateCall = ({ receiver, sender, roomname }) => {
-  //console.log(`Redux terminate call action`);
   return {
     type: TERMINATE_CALL,
     payload: { receiver, sender, roomname },
@@ -274,7 +251,7 @@ export const terminateCall = ({ receiver, sender, roomname }) => {
 };
 
 export const callReject = ({ receiver, sender }) => {
-  //console.log(`Call reject action ${receiver.name} ${sender.name}`);
+  console.log(`Call reject action ${receiver.name} ${sender.name}`);
   return {
     type: CALL_REJECT,
     payload: { receiver, sender },
@@ -282,7 +259,7 @@ export const callReject = ({ receiver, sender }) => {
 };
 
 export const afterCallDisconnect = () => {
-  //console.log(`Call disconnected. Continue processing`);
+  console.log(`Call disconnected. Continue processing`);
   return { type: CALL_DISCONNECTED };
 };
 

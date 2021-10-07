@@ -13,7 +13,6 @@ const JobPlayer = ({ job }) => {
   const [isMKA, setIsMKA] = React.useState(false);
 
   React.useEffect(() => {
-    console.log(`JOB ${JSON.stringify(job)}`);
     if (loadingFile && url === "") {
       if (job.mediaType === "audio/x-matroska") {
         setIsMKA(true);
@@ -21,7 +20,6 @@ const JobPlayer = ({ job }) => {
       }
       const uri = config.SERVER + `/api/jobs/signedURL/${job.s3File}`;
       axios.get(uri).then((res) => {
-        console.log(res.data);
         setUrl(res.data);
         setLoadingFile(false);
       });

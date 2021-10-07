@@ -110,7 +110,6 @@ class RecordScreen extends Component {
     });
   };
   renderIncomingCallModal = () => {
-    console.log("In renderIncomingCallModal", this.state.showIncomingCallModal);
     if (this.state.showIncomingCallModal) {
       return (
         <IgnoreAcceptModal
@@ -136,7 +135,6 @@ class RecordScreen extends Component {
         fileBase +
         "." +
         this.state.extension;
-      console.log("FILE PATH", filePath);
       this.setState({ audioFileName: filePath });
     }
     AudioRecorder.requestAuthorization().then((isAuthorised) => {
@@ -147,13 +145,11 @@ class RecordScreen extends Component {
       this.prepareRecordingPath(filePath);
 
       AudioRecorder.onProgress = (data) => {
-        console.log("CURRENT TIME: ", data);
         this.setState({ recordSecondsCounter: Math.floor(data.currentTime) });
       };
 
       AudioRecorder.onFinished = (data) => {
         if (Platform.OS === "ios") {
-          console.log("Recording Data --", data);
           this.completeRecording(
             data.status === "OK",
             data.audioFileURL,
@@ -220,7 +216,6 @@ class RecordScreen extends Component {
     });
 
     try {
-      console.log("Recording...");
       const filePath = await AudioRecorder.startRecording();
     } catch (error) {
       console.error("Recording start error -- ", error);
@@ -234,7 +229,6 @@ class RecordScreen extends Component {
     }
 
     try {
-      console.log("Pausing recording");
       setTimeout(async () => {
         const filePath = await AudioRecorder.pauseRecording();
         this.setState({
@@ -284,13 +278,11 @@ class RecordScreen extends Component {
     try {
       const filePath = await AudioRecorder.stopRecording();
       if (doUpload) {
-        console.log("Before UPLOAD");
         this.upload();
       }
       if (Platform.OS === "android") {
         this.completeRecording(true, filePath);
       }
-      console.log("Finished Recording Filepath --", filePath);
       this.props.ignoreAllCalls(false);
       return filePath;
     } catch (error) {
@@ -302,11 +294,6 @@ class RecordScreen extends Component {
   };
 
   completeRecording = (didSucceed, filePath, fileSize) => {
-    console.log(
-      `Finished recording of duration ${
-        this.state.recordSecondsCounter
-      } seconds at path: ${filePath} and size of ${fileSize || 0} bytes`
-    );
     if (didSucceed && !this.state.isReset) {
       this.props.navigation.navigate("Home");
     } else if (this.state.isReset) {

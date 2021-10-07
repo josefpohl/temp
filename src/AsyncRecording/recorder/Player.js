@@ -19,7 +19,6 @@ class Player extends React.Component {
   }
 
   componentDidMount() {
-    console.log("CDM Player AudioFileName", this.props.audioFileName);
     this.timeout = setInterval(() => {
       if (
         this.sound &&
@@ -50,7 +49,6 @@ class Player extends React.Component {
   }
 
   loadPlayer = (fileName) => {
-    console.log("URL? -- ", this.state.audioFileName);
     if (this.state.audioFileName) {
       fileName = this.state.audioFileName;
     } else if (this.props.audioFileName) {
@@ -61,7 +59,6 @@ class Player extends React.Component {
         console.log("The audio file failed to load", error);
         return;
       }
-      console.log("Duration", this.sound.getDuration());
       this.setState({
         isPlaying: false,
         isPlayingPaused: true,
@@ -81,6 +78,7 @@ class Player extends React.Component {
   };
 
   playComplete = (success) => {
+    console.log('this.sound 1', this.sound);
     if (this.sound) {
       if (success) {
         console.log("Successfully finished playing");
@@ -110,8 +108,6 @@ class Player extends React.Component {
         let nextSecs = secs + numSeconds;
         if (nextSecs < 0) nextSecs = 0;
         else if (nextSecs > this.state.duration) nextSecs = this.state.duration;
-
-        console.log("Duration", this.state.duration, "nextSecs", nextSecs);
         this.sound.setCurrentTime(nextSecs);
         this.setState({ playSecondsCounter: nextSecs });
       });

@@ -29,7 +29,6 @@ const LoginForm = (props) => {
     AsyncStorage.getItem("lastUser").then((lastUser) => setEmail(lastUser));
     Keychain.getSupportedBiometryType().then((biometryType2) => {
       setBiometryType(biometryType2);
-      console.log(`BIOMETRY TYPE: ${biometryType2}`);
     });
   }, []);
 

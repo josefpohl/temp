@@ -20,7 +20,6 @@ export const getJobs = (userid) => async (dispatch) => {
   dispatch({ type: LOADING_JOBS });
   const uri = config.SERVER + `/api/jobs/provider/${userid}`;
   //TODO refine to users who can take calls for this team
-  console.log(`getJobs for user`);
   axios.get(uri).then((res) => {
     dispatch({ type: SET_JOBS, payload: res.data });
     dispatch({ type: LOADING_JOBS });
@@ -30,7 +29,6 @@ export const getJobs = (userid) => async (dispatch) => {
 //Internal function for getting jobs.
 export const getMyJobs = async (userId) => {
   const uri = config.SERVER + `/api/jobs/provider/${userId}`;
-  console.log("My Jobs,", userId);
   const data = await axios.get(uri).then((res) => {
     return {
       type: SET_JOBS,
@@ -61,7 +59,6 @@ export const titleChanged = (title) => {
 };
 
 export const saveJobInProgress = (jobInProgressData) => (dispatch) => {
-  console.log("STORE_JOBINPROGRESS", jobInProgressData);
   return {
     type: STORE_JOBINPROGRESS,
     payload: jobInProgressData,
@@ -69,7 +66,6 @@ export const saveJobInProgress = (jobInProgressData) => (dispatch) => {
 };
 
 export const removeJobInProgress = () => (dispatch) => {
-  console.log("RemoveJobInProgress");
   return {
     type: STORE_JOBINPROGRESS,
     payload: { data: null, error: false },
@@ -80,7 +76,6 @@ export const uploadNewJob =
   ({ jobData, audioFileName, userid }) =>
   (dispatch) => {
     const uri = config.SERVER + "/api/jobs";
-    console.log("In uploadNewJob", jobData, uri, userid);
     dispatch(setJobLoading());
     axios
       .post(uri, jobData)
@@ -128,10 +123,8 @@ export const uploadNewJob =
 
 //UNUSED CURRENTLY
 export const getSignedURL = (job) => (dispatch) => {
-  // console.log('JOB IN GETSIGNEDURL', job);
   const uri = config.SERVER + `/api/jobs/signedURL/${job.s3File}`;
   axios.get(uri).then((res) => {
-    console.log("Response in action", res.data, job._id);
     dispatch({
       type: ADD_URL,
       payload: { audioFile: res.data, jobid: job._id },
@@ -153,7 +146,6 @@ export const setEndRecording = () => {
 };
 
 export const setInAsyncRecording = (recordingData) => {
-  console.log(`Setting state IN_ASYNC_RECORDING`);
   return {
     type: IN_ASYNC_RECORDING,
     payload: recordingData,

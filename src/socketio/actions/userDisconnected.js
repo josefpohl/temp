@@ -13,7 +13,6 @@ import {
 import { removeAvailable } from "../../actions/availableActions";
 
 export function userDisconnected(user) {
-  console.log("userDisconnected function", user);
   return {
     type: "socket",
     types: [
@@ -26,15 +25,11 @@ export function userDisconnected(user) {
 }
 
 export const onUserDisconnected = () => (dispatch, getState) => {
-  console.log("userDisconnected listener exec");
   const onUserDisconnected = (e) => {
-    console.log(`On USER_DISCONNECTED: ${e.name}`);
     const { teamProfiles } = getState().profiles;
     const foundProfile = teamProfiles.find((p) => p.user?._id === e.id);
     if (foundProfile) {
       dispatch(removeAvailable(e));
-    } else {
-      console.log(`${e.name} removal ignored`);
     }
   };
   dispatch({

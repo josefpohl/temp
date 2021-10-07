@@ -341,7 +341,7 @@ PODS:
     - React
   - RNVectorIcons (8.1.0):
     - React-Core
-  - TwilioVideo (4.4.0)
+  - TwilioVideo (4.5.0)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -566,10 +566,10 @@ SPEC CHECKSUMS:
   RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
   RNSound: c980916b596cc15c8dcd2f6ecd3b13c4881dbe20
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
-  TwilioVideo: fcf10b7460e582570887d194b73e75425685d813
+  TwilioVideo: a765f519bb8646187eaa0e9f7443d08529ccba0a
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
 PODFILE CHECKSUM: 828ed8da02e6d53074ca62f871ea213e76f01100
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.0

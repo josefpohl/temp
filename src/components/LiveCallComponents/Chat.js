@@ -22,10 +22,8 @@ const Chat = ({ messages, message, user, skywriter, addMessage }) => {
     const messageText = messages.map((m, idx) => (
       <ChatBubble key={idx} message={m} user={user} />
     ));
-    //console.log(messageText);
     setMessageList(messageText);
   }, [messages]);
-
   const messageButton = (
     <Button
       raised

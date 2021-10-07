@@ -15,13 +15,10 @@ const initial_state = {
 export default (state = initial_state, action) => {
   switch (action.type) {
     case LOADING_AVAILABILITY:
-      console.log(`LOADING_AVAILABILITY: `);
       return { ...state, loadingAvailables: !state.loadingAvailables };
     case SET_CURRENT_AVAILABLES:
-      //console.log(`SET CURRENT AVAILABLES ${JSON.stringify(action.payload)}`);
       return { ...state, allAvailables: action.payload };
     case ADD_AVAILABLE:
-      console.log(`ADD_AVAILABLE ${JSON.stringify(action.payload.name)}`);
       const addId = getId(action.payload);
       let indexToAdd = state.allAvailables.findIndex(
         (a) => getId(a.userLoggedIn) === addId
@@ -52,7 +49,6 @@ export default (state = initial_state, action) => {
         allAvailables: [...newAvailablesDisco],
       };
     case LEFT_LIVE_CALL:
-      //console.log(`Available LEFT Reducer ${JSON.stringify(action.payload)}`);
       if (action.payload === null || action.payload?.role !== "skywriter")
         return state;
       const idLLC = getId(action.payload);
@@ -73,7 +69,6 @@ export default (state = initial_state, action) => {
         allAvailables: [...newAvailablesLLC],
       };
     case IN_LIVE_CALL:
-      //console.log(`Available IN Reducer ${JSON.stringify(action.payload)}`);
       if (action.payload === null || action.payload?.role !== "skywriter")
         return state;
       const idILC = getId(action.payload);
@@ -96,10 +91,8 @@ export default (state = initial_state, action) => {
 
 function getId(user) {
   if (user.id) {
-    console.log("GET ID", user.id);
     return user.id;
   } else {
-    console.log("GET ID", user._id);
     return user._id;
   }
 }

@@ -12,7 +12,7 @@ import {
 
 import { makeRoomConnect } from "../../../state/liveCalls";
 export function roomConnect(user, skywriter) {
-  console.log(`connect request from ${user.name} to ${skywriter.name}`);
+  console.log(`connect request from ${JSON.stringify(user)} to ${JSON.stringify(skywriter)}`);
 
   //TODO Fix this - for correct data names on emit.
   return {

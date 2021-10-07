@@ -13,7 +13,6 @@ import {
 import { addMessage } from "../../../state/liveCalls";
 
 export const message = ({ sender, receiver, message }) => {
-  console.log(`IN EMIT MESSAGE: ${message}`);
   return {
     type: "socket",
     types: [SEND_MESSAGE, SEND_MESSAGE_SUCCESS, SEND_MESSAGE_FAIL],
@@ -24,7 +23,6 @@ export const message = ({ sender, receiver, message }) => {
 
 export const onMessage = () => (dispatch) => {
   const onMessageIncoming = (e) => {
-    console.log(`Incoming message ${JSON.stringify(e)}`);
     dispatch(addMessage(e));
   };
 

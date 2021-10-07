@@ -16,7 +16,6 @@ export const addAvailable = (user) => {
   // need access to team profile state, so this may need to be done else where
   // or combined with profile state...
 
-  console.log(`ADD_AVAILABLE_ACTION ${user.name}`);
   return {
     type: ADD_AVAILABLE,
     payload: user,
@@ -24,7 +23,6 @@ export const addAvailable = (user) => {
 };
 
 export const removeAvailable = (user) => {
-  console.log("REMOVE_AVAILABLE ACTION ", user);
   return {
     type: REMOVE_AVAILABLE,
     payload: user,
@@ -33,12 +31,9 @@ export const removeAvailable = (user) => {
 
 export const leftLiveCall = (user) => async (dispatch) => {
   const URI = config.SERVER + `/api/available/callEnd/${getId(user)}`;
-  // console.log(`LEFT LIVE CALL ${JSON.stringify(user)}`);
-  console.log(URI);
   const avail = await axios
     .get(URI)
     .then((res) => {
-      //console.log(`LeftLiveCall available ${JSON.stringify(res.data)}`);
       return res.data;
     })
     .catch((err) => {
@@ -52,13 +47,10 @@ export const leftLiveCall = (user) => async (dispatch) => {
 };
 
 export const inLiveCall = (user) => async (dispatch) => {
-  console.log(`IN LIVE CALL ${JSON.stringify(user)}`);
   const URI = config.SERVER + `/api/available/update/${getId(user)}`;
-  console.log(URI);
   const avail = await axios
     .get(URI)
     .then((res) => {
-      console.log(`In LiveCall available ${JSON.stringify(res.data)}`);
       return res.data;
     })
     .catch((err) => {
@@ -72,13 +64,11 @@ export const inLiveCall = (user) => async (dispatch) => {
 
 export const getCurrentAvailable = (user) => async (dispatch, getState) => {
   dispatch({ type: LOADING_AVAILABILITY });
-  console.log(`In getCurrentAvailable ${user.name}`);
   const uri = config.SERVER + `/api/available/allTeam/${getId(user)}`;
   //TODO refine to users who can take calls for this team
   const teamAvailables = await axios
     .get(uri)
-    .then((res) => {
-      //console.log(`GET TEAM AVAILABLES: ${JSON.stringify(res.data)}`);
+    .then((res) => {;
       const availableSkywriters = res.data.filter(
         (a) => a.userLoggedIn?.role === "skywriter"
       );
@@ -120,7 +110,6 @@ const filterForTeamRoles = (availableSkywriters, teamid, teamProfiles) => {
   const avails = availableSkywriters.filter((a) => {
     const profile = teamProfiles.find((p) => p.user._id === a.userLoggedIn._id);
     const profileTeams = profile.teams.filter((pt) => {
-      console.log(`${pt.teamid} and ${teamid}`);
       return pt.teamid.toString() === teamid.toString();
     });
     if (profileTeams.length >= 1) {

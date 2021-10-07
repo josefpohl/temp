@@ -38,3 +38,4 @@ export const END_RECORDING = "END_RECORDING";
 
 //Live call
 export const CALL_ENDED = "CALL_ENDED";
+export const CALL_STARTED = 'CALL_STARTED';
