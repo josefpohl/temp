@@ -94,6 +94,8 @@ const LiveCallInProgress = ({
   const [networkQuality, setNetworkQuality] = React.useState(5);
   const [callSuccessfulyConnected, seIsCallConnected] = React.useState(false);
   const [error, setError] = React.useState("");
+  // added to control if call is cancel by provider [in the getting call information screen] or room not connected [in the error message screen]
+  const [cancelControl, setCancelControl] = React.useState(0);
   // const [cancelTimeout, setCancelTimeout] = React.useState(false);
   let timer = null;
 
@@ -189,8 +191,8 @@ const LiveCallInProgress = ({
       /**
        * Add timer to let provider know that the app is doing something
        */
-      let timerTO;
       setAnnouncements("Getting Call Information");
+      setCancelControl(1); // call cancelled by provider
       setTimeout(() => {
         setSubAnnouncements("it's taking more than usual, please wait")
       }, 20000)
@@ -202,8 +204,8 @@ const LiveCallInProgress = ({
         setAnnouncements("");
         setSubAnnouncements("");
         setError("Error: Your side failed to connect to the call");
+        setCancelControl(2); // room not connected
       }, 40000)
-      return () => clearTimeout(timerTO);
     }
   }, [
     canJoinRoom,
@@ -334,6 +336,16 @@ const LiveCallInProgress = ({
     });
   };
 
+  // sets the cancel call reason
+  const controlCallCancel = () => {
+    if (cancelControl == 1) {
+      setCancelReason("Cancelled by provider");
+    } else if (cancelControl == 2) {
+      setCancelReason("Room not connected");
+    }
+    setCancelledCall(true);
+  };
+
   const cancelButton = (
     <View>
       {
@@ -353,7 +365,7 @@ const LiveCallInProgress = ({
           raised
           mode="contained"
           theme={{ roundness: 3 }}
-          onPress={() => setCancelledCall(true)}
+          onPress={() => controlCallCancel()}
           style={styles.buttonStyle}
         >
           <Text style={styles.dataElements}>Cancel </Text>

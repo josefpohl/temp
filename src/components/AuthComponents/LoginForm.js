@@ -20,8 +20,8 @@ import { color } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 
 const LoginForm = (props) => {
-  const [email, setEmail] = React.useState("doc6@users.com");
-  const [password, setPassword] = React.useState("Password1#");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
   const [biometryType, setBiometryType] = React.useState();
   const [errorMessage, setErrorMessage] = React.useState("");
 
