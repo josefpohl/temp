@@ -6,6 +6,10 @@ import {
   USER_LOADING,
   USER_LOADING_COMPLETE,
   LOGOUT_USER,
+  SHOW_SOCKET_LOADING,
+  SHOW_SOCKET_RECONNECT,
+  SHOW_SOCKET_FAILED,
+  HIDE_SOCKET_LOADING
 } from "../actions/actionTypes";
 
 const initial_state = {
@@ -15,6 +19,8 @@ const initial_state = {
   isAuthenticated: false,
   error: "",
   loading: false,
+  socketLoading: false,
+  socket: 0 
 };
 
 export default (state = initial_state, action) => {
@@ -38,6 +44,14 @@ export default (state = initial_state, action) => {
       return { ...state, loading: false };
     case LOGOUT_USER:
       return { ...state, isAuthenticated: false, user: null };
+    case SHOW_SOCKET_LOADING:
+      return { ...state, socketLoading: true };
+    case SHOW_SOCKET_RECONNECT:
+      return { ...state, socketLoading: true, socket: 1 };
+    case SHOW_SOCKET_FAILED:
+      return { ...state, socketLoading: true, socket: 2 };
+    case HIDE_SOCKET_LOADING:
+      return { ...state, socketLoading: false };
     default:
       return state;
   }

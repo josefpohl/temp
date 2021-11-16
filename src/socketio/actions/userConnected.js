@@ -11,11 +11,7 @@ import {
 } from "./types";
 
 import { addAvailable } from "../../actions/availableActions";
-
-import {
-  logoutUser,
-  userLoadingComplete
-} from "../../actions/authenticationActions";
+import AsyncStorage from "@react-native-community/async-storage";
 
 export function userConnected(user) {
   console.log('userConnected');
@@ -34,12 +30,8 @@ export const onUserConnected = (socketControl) => (dispatch, getState) => {
   const onUserConnected = (e) => {
     // socketControl == 2, means is a dispatch from active-inactive-background state flow
     if (socketControl == 2) {
-      // check if the user have a socketId, if exists then show home screen
       if (e.socketId) {
-        dispatch(userLoadingComplete());
-      } else {
-        // if socket is not connected then logout the user
-        dispatch(logoutUser(e));
+        AsyncStorage.setItem("socketId", e.socketId);
       }
     }
     const { teamProfiles, userProfile } = getState().profiles;

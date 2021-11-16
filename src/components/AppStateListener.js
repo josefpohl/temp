@@ -24,16 +24,25 @@ import {
 } from "../socketio/actions/liveCallSocket";
 import {
   logoutUser,
-  userLoading,
   userLoadingComplete,
 } from "../actions/authenticationActions";
+
+import {
+  showSocketLoading,
+  showSocketReconnect,
+  showSocketFailed,
+  hideSocketLoading
+} from "../actions/socketActions";
+
 import Toast from "react-native-toast-message";
+
 export default function AppStateListener() {
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.auth);
   const liveCallState = useSelector((state) => state.livecalls);
   const appState = useRef(AppState.currentState);
   const [appStateVisible, setAppStateVisible] = useState(appState.current);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     console.log('useEffect liveCallState', liveCallState);
@@ -44,6 +53,59 @@ export default function AppStateListener() {
     };
   }, []);
 
+  useEffect(() => {
+    async function getSocket() {
+      const value = await AsyncStorage.getItem("socketId");
+
+      if (value !== null) {
+        dispatch(hideSocketLoading());
+        dispatch(onUserDisconnected());
+        dispatch(onRoomInitiate());
+        dispatch(onCallAccept());
+        dispatch(onMessage());
+        dispatch(onSkywriterArrived());
+        dispatch(onLeaving());
+        dispatch(onLeftLiveCall());
+        dispatch(onInLiveCall());
+        dispatch(onTerminate());
+        dispatch(onCallReject());
+        dispatch(onAlert());
+        dispatch(onRoomConnect());
+        AsyncStorage.getItem("user").then((user) => {
+          dispatch(getCurrentAvailable(JSON.parse(user)));
+        });
+      } else {
+        if (count == 2) {
+          dispatch(showSocketReconnect());
+          dispatch(connect());
+
+          setTimeout(() => {
+            AsyncStorage.getItem("user").then((user) => {
+              dispatch(userConnected(JSON.parse(user)));
+            });
+            dispatch(onUserConnected(2));
+            setCount(count + 1);
+          }, 40000);
+        } else {
+          dispatch(showSocketFailed());
+          AsyncStorage.getItem("user").then((user) => {
+            dispatch(logoutUser(user));
+          });
+        }
+      }
+    }
+    
+    if (count > 0 && (count < 3 && authState.isAuthenticated) || count == 2) {
+      if (count == 2) {
+        setTimeout(() => {
+          getSocket();
+        }, 1000);
+      } else {
+        getSocket();
+      }
+    }
+  }, [count]);
+
   const _handleAppStateChange = (nextAppState) => {
     if (
       appState.current.match(/inactive|background/) &&
@@ -51,8 +113,6 @@ export default function AppStateListener() {
     ) {
       AsyncStorage.getItem("InLiveCall").then((value) => {
         if (value !== "true") {
-          dispatch(userLoading()); // User loading
-          dispatch(connect());
           AsyncStorage.getItem("user").then((user) => {
             if (user) {
               AsyncStorage.getItem("inactiveTime").then((time) => {
@@ -68,11 +128,14 @@ export default function AppStateListener() {
                   });
                   dispatch(userLoadingComplete());
                 } else {
+                  dispatch(showSocketLoading());
+                  dispatch(connect());
                   dispatch(userConnected(JSON.parse(user)));
-                  //re-initialize all other events...
-                  // with onUserDisconnected check if socket is connected (user have socketId)
                   dispatch(onUserConnected(2));
-                  dispatch(onUserDisconnected());
+
+                  setCount(count + 2);
+                  //re-initialize all other events...
+                  /*dispatch(onUserDisconnected());
                   dispatch(onRoomInitiate());
                   dispatch(onCallAccept());
                   dispatch(onMessage());
@@ -84,8 +147,8 @@ export default function AppStateListener() {
                   dispatch(onCallReject());
                   dispatch(onAlert());
                   dispatch(onRoomConnect());
-                  dispatch(getCurrentAvailable(JSON.parse(user)));
-                  // dispatch(userLoadingComplete());
+                  dispatch(getCurrentAvailable(JSON.parse(user)));*/
+                  // dispatch(userLoadingComplete()); this is not included
                 }
               });
             }
@@ -103,6 +166,8 @@ export default function AppStateListener() {
           console.log(`Not in live call`);
           AsyncStorage.setItem("inactiveTime", new Date().getTime().toString());
           dispatch(disconnect());
+          AsyncStorage.removeItem("socketId");
+          setCount(0);
         }
       });
     }

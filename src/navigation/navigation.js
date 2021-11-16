@@ -1,11 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
-import { View, StyleSheet, Text } from "react-native";
-
-import AsyncStorage from "@react-native-community/async-storage";
-
+import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+
 import HomeScreen from "../components/HomeComponents/HomeScreen";
 import OtherScreen from "../components/HomeComponents/OtherScreen";
 import RecordingScreen from "../AsyncRecording/RecordingScreen";
@@ -13,6 +11,7 @@ import JobScreen from "../components/JobComponents/JobScreen";
 import LiveCallScreen from "../components/LiveCallComponents/LiveCallScreen";
 import LoginForm from "../components/AuthComponents/LoginForm";
 import Loading from "../components/common/Loading";
+import SocketLoading from "../components/common/SocketLoading";
 
 import Toast from "react-native-toast-message";
 
@@ -48,13 +47,17 @@ const AuthStackScreen = () => (
 const Navigation = (props) => {
   return (
     <NavigationContainer>
-      {props.loading ? (
-        <Loading />
-      ) : props.isAuthenticated ? (
-        <HomeStackScreen />
-      ) : (
-        <AuthStackScreen />
-      )}
+      {
+        props.loading ? (
+          <Loading />
+        ) : props.socketLoading ? (
+          <SocketLoading step={props.socket} />
+        ) : props.isAuthenticated ? (
+          <HomeStackScreen />
+        ) : (
+          <AuthStackScreen />
+        )
+      }
       <Toast ref={(ref) => Toast.setRef(ref)} />
     </NavigationContainer>
   );
@@ -62,6 +65,8 @@ const Navigation = (props) => {
 
 const mapStateToProps = (state) => {
   return {
+    socketLoading: state.auth.socketLoading,
+    socket: state.auth.socket,
     isAuthenticated: state.auth.isAuthenticated,
     loading: state.auth.loading,
     inLiveCall: state.livecalls.inLiveCall,
