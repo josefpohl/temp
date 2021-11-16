@@ -28,6 +28,7 @@ export function userConnected(user) {
     },
   };
 }
+
 // added socket control to prevent loading screen showing on login dispatch
 export const onUserConnected = (socketControl) => (dispatch, getState) => {
   console.log('onUserConnected');
